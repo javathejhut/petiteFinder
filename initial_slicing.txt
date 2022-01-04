@@ -1,0 +1,5 @@
+python slice_coco.py /home/groot/mmDetection/COCO_dataset/images/test/ /home/groot/mmDetection/COCO_dataset/annotations/test.json
+
+python slice_coco.py /home/groot/mmDetection/COCO_dataset/images/validate/ /home/groot/mmDetection/COCO_dataset/annotations/validate.json
+
+python slice_coco.py /home/groot/mmDetection/COCO_dataset/images/train/ /home/groot/mmDetection/COCO_dataset/annotations/train.json

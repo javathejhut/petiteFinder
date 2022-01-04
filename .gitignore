@@ -1,0 +1,13 @@
+dataset/
+dataset_old/
+checkpoints/
+work_dirs/
+mmdetection/
+lr_mom_paramsweep_flip.sh
+log_analysis.txt
+testing_without_slicing.txt
+.ipynb_checkpoints
+.idea
+COCO_dataset/
+COCO_dataset_sliced/
+model_weights/
