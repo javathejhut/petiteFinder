@@ -10,3 +10,4 @@ testing_without_slicing.txt
 COCO_dataset/
 COCO_dataset_sliced/
 model_weights/
+build/
