@@ -215,7 +215,7 @@ data = dict(
         ],
         classes=('g', 'p')))
 evaluation = dict(interval=1, metric='bbox')
-optimizer = dict(type='SGD', lr=0.01, momentum=0.5, weight_decay=0.0001)
+optimizer = dict(type='SGD', lr=0.001, momentum=0.9, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=None)
 lr_config = dict(
     policy='step',
@@ -233,5 +233,5 @@ load_from = '/home/groot/mmDetection/checkpoints/faster_rcnn_r50_fpn_1x_coco_202
 resume_from = None
 workflow = [('train', 1), ('val', 1)]
 classes = ('g', 'p')
-work_dir = '/media/groot/HDD_storage/work_dirs/faster_rcnn_r50_fpn_1x_coco_petiteFinder_0.01_0.5'
+work_dir = '/media/groot/HDD_storage/work_dirs/faster_rcnn_r50_fpn_1x_coco_petiteFinder_0.001_0.9'
 gpu_ids = range(0, 1)
