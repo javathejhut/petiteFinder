@@ -21,7 +21,7 @@ model = dict(
         feat_channels=256,
         anchor_generator=dict(
             type='AnchorGenerator',
-            scales=[4, 8],
+            scales=[2, 4, 8],
             ratios=[0.5, 1.0, 2.0],
             strides=[4, 8, 16, 32, 64]),
         bbox_coder=dict(
@@ -104,6 +104,7 @@ model = dict(
 
 dataset_type = 'CocoDataset'
 data_root = '/home/klyshko/Desktop/petiteFinder/COCO_dataset_sliced/'
+classes = ('g', 'p')
 
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
@@ -148,19 +149,24 @@ data = dict(
         type=dataset_type,
         ann_file = data_root + 'slice_coco_train/512_02/train_sliced_512.json',
         img_prefix = data_root + 'slice_coco_train/512_02/train_sliced_images_512/',
-        pipeline=train_pipeline),
+        pipeline=train_pipeline,
+        classes = classes),
     
     val=dict(
         type=dataset_type,
         ann_file = data_root + 'slice_coco_validate/512_02/validate_sliced_512.json',
         img_prefix = data_root + 'slice_coco_validate/512_02/validate_sliced_images_512/',
-        pipeline=test_pipeline),
+        pipeline=test_pipeline,
+        classes = classes),
     
     test=dict(
         type=dataset_type,
         ann_file = data_root + 'slice_coco_test/512_02/test_sliced_512.json',
         img_prefix = data_root + 'slice_coco_test/512_02/test_sliced_images_512/',
-        pipeline=test_pipeline))
+        pipeline=test_pipeline,
+        classes = classes)
+    )
+
 evaluation = dict(interval=1, metric='bbox')
 
 
@@ -181,12 +187,12 @@ log_level = 'INFO'
 load_from = '/home/klyshko/Desktop/petiteFinder/checkpoints/faster_rcnn_r50_fpn_1x_coco_20200130-047c8118.pth'
 resume_from = None
 workflow = [('train', 1), ('val', 1)]
-classes = ('g', 'p')
+
 gpu_ids = range(0, 1)
 
 
 project_name = 'petiteFinder'
-name = 'exp_500px_4-8anchors'
+name = 'exp_500px_2-4-8anchors'
 work_dir = '/media/klyshko/HDD/ML_runs/{}/{}'.format(project_name, name)
 
 log_config = dict(
