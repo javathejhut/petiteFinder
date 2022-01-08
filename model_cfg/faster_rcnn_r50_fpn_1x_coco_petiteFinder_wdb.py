@@ -21,7 +21,7 @@ model = dict(
         feat_channels=256,
         anchor_generator=dict(
             type='AnchorGenerator',
-            scales=[2, 4, 8],
+            scales=[4, 8],
             ratios=[0.5, 1.0, 2.0],
             strides=[4, 8, 16, 32, 64]),
         bbox_coder=dict(
@@ -116,9 +116,8 @@ train_pipeline = [
     dict(type='LoadAnnotations', with_bbox=True),
     dict(type='Resize', img_scale=img_scale, keep_ratio=True),
     dict(type='RandomFlip', flip_ratio=0.5),
-    dict(
-        type='Normalize',
-        **img_norm_cfg),
+    dict(type='PhotoMetricDistortion'),
+    dict(type='Normalize', **img_norm_cfg),
     dict(type='Pad', size_divisor=32),
     dict(type='DefaultFormatBundle'),
     dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
@@ -132,9 +131,8 @@ test_pipeline = [
         transforms=[
             dict(type='Resize', keep_ratio=True),
             dict(type='RandomFlip'),
-            dict(
-                type='Normalize',
-                **img_norm_cfg),
+            dict(type='PhotoMetricDistortion'),
+            dict(type='Normalize', **img_norm_cfg),
             dict(type='Pad', size_divisor=32),
             dict(type='ImageToTensor', keys=['img']),
             dict(type='Collect', keys=['img'])
@@ -172,12 +170,20 @@ evaluation = dict(interval=1, metric='bbox')
 
 optimizer = dict(type='SGD', lr=0.001, momentum=0.9, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=None)
+
 lr_config = dict(
     policy='step',
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=0.001,
     step=[8, 11])
+
+#lr_config = dict(
+#    policy='CosineAnnealing',
+#    min_lr_ratio=0.001,
+#    by_epoch=False
+#)
+
 runner = dict(type='EpochBasedRunner', max_epochs=20)
 checkpoint_config = dict(interval=1)
 
@@ -192,7 +198,7 @@ gpu_ids = range(0, 1)
 
 
 project_name = 'petiteFinder'
-name = 'exp_500px_2-4-8anchors'
+name = 'exp_500px_4-8anchor_linear_distortions'
 work_dir = '/media/klyshko/HDD/ML_runs/{}/{}'.format(project_name, name)
 
 log_config = dict(
