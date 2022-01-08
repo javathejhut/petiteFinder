@@ -109,12 +109,12 @@ classes = ('g', 'p')
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 
-img_scale = (512, 512)
+img_scale = [(512, 512), (800, 800), (1024, 1024)]
 
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='Resize', img_scale=img_scale, keep_ratio=True),
+    dict(type='Resize', img_scale=img_scale, keep_ratio=True, multiscale_mode="value"),
     dict(type='RandomFlip', flip_ratio=0.5),
     dict(type='PhotoMetricDistortion'),
     dict(type='Normalize', **img_norm_cfg),
@@ -129,9 +129,9 @@ test_pipeline = [
         img_scale=img_scale,
         flip=False,
         transforms=[
-            dict(type='Resize', keep_ratio=True),
+            dict(type='Resize', keep_ratio=True, multiscale_mode="value"),
             dict(type='RandomFlip'),
-            dict(type='PhotoMetricDistortion'),
+            #dict(type='PhotoMetricDistortion'),
             dict(type='Normalize', **img_norm_cfg),
             dict(type='Pad', size_divisor=32),
             dict(type='ImageToTensor', keys=['img']),
@@ -184,7 +184,7 @@ lr_config = dict(
 #    by_epoch=False
 #)
 
-runner = dict(type='EpochBasedRunner', max_epochs=20)
+runner = dict(type='EpochBasedRunner', max_epochs=30)
 checkpoint_config = dict(interval=1)
 
 custom_hooks = [dict(type='NumClassCheckHook')]
@@ -198,7 +198,7 @@ gpu_ids = range(0, 1)
 
 
 project_name = 'petiteFinder'
-name = 'exp_500px_4-8anchor_linear_distortions'
+name = 'exp_500px_4-8anchor_linear_distortions_mult-scale'
 work_dir = '/media/klyshko/HDD/ML_runs/{}/{}'.format(project_name, name)
 
 log_config = dict(
