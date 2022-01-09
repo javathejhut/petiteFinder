@@ -116,6 +116,7 @@ train_pipeline = [
     dict(type='LoadAnnotations', with_bbox=True),
     dict(type='Resize', img_scale=img_scale, keep_ratio=True, multiscale_mode="value"),
     dict(type='RandomFlip', flip_ratio=0.5),
+    dict(type='RandomCrop', crop_type="relative_range", crop_size=(0.8,0.8)),
     dict(type='PhotoMetricDistortion'),
     dict(type='Normalize', **img_norm_cfg),
     dict(type='Pad', size_divisor=32),
@@ -131,6 +132,7 @@ test_pipeline = [
         transforms=[
             dict(type='Resize', keep_ratio=True, multiscale_mode="value"),
             dict(type='RandomFlip'),
+            #dict(type='RandomCrop', crop_type="relative_range", crop_size=(0.9,0.9)),
             #dict(type='PhotoMetricDistortion'),
             dict(type='Normalize', **img_norm_cfg),
             dict(type='Pad', size_divisor=32),
@@ -198,7 +200,7 @@ gpu_ids = range(0, 1)
 
 
 project_name = 'petiteFinder'
-name = 'exp_500px_4-8anchor_linear_distortions_mult-scale'
+name = 'exp_500px_4-8anchor_linear_distortions_mult-scale_crop-0.8'
 work_dir = '/media/klyshko/HDD/ML_runs/{}/{}'.format(project_name, name)
 
 log_config = dict(
