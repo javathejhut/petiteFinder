@@ -116,6 +116,7 @@ train_pipeline = [
     dict(type='LoadAnnotations', with_bbox=True),
     dict(type='Resize', img_scale=img_scale, keep_ratio=True, multiscale_mode="value"),
     dict(type='RandomFlip', flip_ratio=0.5),
+    dict(type='RandomCrop', crop_type="relative_range", crop_size=(0.8,0.8)),
     dict(type='PhotoMetricDistortion'),
     dict(type='Normalize', **img_norm_cfg),
     dict(type='Pad', size_divisor=32),
@@ -131,7 +132,8 @@ test_pipeline = [
         transforms=[
             dict(type='Resize', keep_ratio=True, multiscale_mode="value"),
             dict(type='RandomFlip'),
-            # dict(type='PhotoMetricDistortion'),
+            #dict(type='RandomCrop', crop_type="relative_range", crop_size=(0.9,0.9)),
+            #dict(type='PhotoMetricDistortion'),
             dict(type='Normalize', **img_norm_cfg),
             dict(type='Pad', size_divisor=32),
             dict(type='ImageToTensor', keys=['img']),
@@ -148,6 +150,7 @@ val_pipeline = [
         transforms=[
             dict(type='Resize', keep_ratio=True, multiscale_mode="value"),
             dict(type='RandomFlip'),
+            dict(type='RandomCrop', crop_type="relative_range", crop_size=(0.8,0.8)),
             dict(type='PhotoMetricDistortion'),
             dict(type='Normalize', **img_norm_cfg),
             dict(type='Pad', size_divisor=32),
