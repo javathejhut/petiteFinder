@@ -9,8 +9,8 @@ model_type = "mmdet"
 model_device = "cuda"  # or 'cuda:0'
 
 model_path = os.path.normpath(
-    PROJECT_ROOT + "/model_weights/faster_rcnn_r50_fpn_1x_coco_petiteFinder_0.001_0.9_epoch_10.pth")
-model_config_path = os.path.normpath(PROJECT_ROOT + "/model_cfg/faster_rcnn_r50_fpn_1x_coco_petiteFinder.py")
+    PROJECT_ROOT + "/model_weights/exp_500px_4-8anchor_linear_distortions_mult-scale_epoch_10.pth")
+model_config_path = os.path.normpath(PROJECT_ROOT + "/model_cfg/faster_rcnn_r50_fpn_1x_coco_petiteFinder_wdb.py")
 source_image_path = os.path.normpath(PROJECT_ROOT + "/COCO_dataset/images/validate/")
 dataset_json_path = os.path.normpath(PROJECT_ROOT + "/COCO_dataset/annotations/validate.json")
 

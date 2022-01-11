@@ -156,9 +156,9 @@ def get_pred_bboxes_SAHI(path_to_pred, gt_category_dict, gt_img_dict):
         pred_json = json.load(pred)
 
     # because sahi doesn't preserve image_ids... simply indexes by order in original json
-    sahi_imgid_to_gt_id = {}
-    for i, img in enumerate(gt_img_dict):
-        sahi_imgid_to_gt_id[i + 1] = img["id"]
+    # sahi_imgid_to_gt_id = {}
+    # for i, img in enumerate(gt_img_dict):
+    #     sahi_imgid_to_gt_id[i + 1] = img["id"]
 
     # because sahi also doesn't preserve category ids
     sahi_cat_name_to_gt_id = {}
@@ -172,7 +172,7 @@ def get_pred_bboxes_SAHI(path_to_pred, gt_category_dict, gt_img_dict):
         pred_bbox_dict[imgID] = []
 
         for ann in pred_json:
-            if int(sahi_imgid_to_gt_id[ann["image_id"]]) == int(imgID):
+            if int(ann["image_id"]) == int(imgID):
                 pred_bbox_dict[imgID].append([int(ann["bbox"][0]),
                                               int(ann["bbox"][1]),
                                               int(ann["bbox"][0] + ann["bbox"][2]),
@@ -285,7 +285,7 @@ def get_COCO_mAP(gt_bbox_dict, pred_bbox_dict, gt_category_dict) -> dict:
         metric_fn.add(np.array(pred_bbox_dict[key]), np.array(gt_bbox_dict[key]))
 
     # compute metric COCO metrics
-    mAP_total = metric_fn.value(iou_thresholds=np.arange(0.05, 0.95, 0.05), mpolicy='soft')['mAP']
+    mAP_total = metric_fn.value(iou_thresholds=np.arange(0.5, 0.95, 0.05), mpolicy='soft')['mAP']
     mAP_05 = metric_fn.value(iou_thresholds=0.5, mpolicy='soft')['mAP']
     mAP_075 = metric_fn.value(iou_thresholds=[0.75], mpolicy='soft')['mAP']
 
