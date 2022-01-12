@@ -21,7 +21,7 @@ model = dict(
         feat_channels=256,
         anchor_generator=dict(
             type='AnchorGenerator',
-            scales=[4, 8],
+            scales=[8],
             ratios=[0.5, 1.0, 2.0],
             strides=[4, 8, 16, 32, 64]),
         bbox_coder=dict(
@@ -103,18 +103,19 @@ model = dict(
             max_per_img=100)))
 
 dataset_type = 'CocoDataset'
-data_root = '/home/groot/mmDetection/COCO_dataset_sliced/'
+data_root = '/home/klyshko/Desktop/petiteFinder/COCO_dataset_sliced/'
 classes = ('g', 'p')
 
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 
-img_scale = [(512, 512), (800, 800), (1024, 1024)]
+img_scale = (1024, 1024)
 
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='Resize', img_scale=img_scale, keep_ratio=True, multiscale_mode="value"),
+    #dict(type='Resize', img_scale=img_scale, keep_ratio=True, multiscale_mode="value"),
+    dict(type='Resize', img_scale=img_scale, keep_ratio=True),
     dict(type='RandomFlip', flip_ratio=0.5),
     dict(type='RandomCrop', crop_type="relative_range", crop_size=(0.8,0.8)),
     dict(type='PhotoMetricDistortion'),
@@ -130,7 +131,8 @@ test_pipeline = [
         img_scale=img_scale,
         flip=False,
         transforms=[
-            dict(type='Resize', keep_ratio=True, multiscale_mode="value"),
+            #dict(type='Resize', keep_ratio=True, multiscale_mode="value"),
+            dict(type='Resize', keep_ratio=True),
             dict(type='RandomFlip'),
             #dict(type='RandomCrop', crop_type="relative_range", crop_size=(0.9,0.9)),
             #dict(type='PhotoMetricDistortion'),
@@ -192,7 +194,7 @@ checkpoint_config = dict(interval=1)
 custom_hooks = [dict(type='NumClassCheckHook')]
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-load_from = '/home/groot/mmDetection/checkpoints/faster_rcnn_r50_fpn_1x_coco_20200130-047c8118.pth'
+load_from = '/home/klyshko/Desktop/petiteFinder/checkpoints/faster_rcnn_r50_fpn_1x_coco_20200130-047c8118.pth'
 resume_from = None
 workflow = [('train', 1), ('val', 1)]
 
@@ -200,11 +202,13 @@ gpu_ids = range(0, 1)
 
 
 project_name = 'petiteFinder'
-name = 'exp_500px_4-8anchor_linear_distortions_mult-scale_crop-0.8'
-work_dir = '/home/groot/mmDetection/work_dirs/{}/{}'.format(project_name, name)
+
+name = 'exp_1024px_8anchor_linear_distortions_crop-0.8'
+work_dir = '/media/klyshko/HDD/ML_runs/{}/{}'.format(project_name, name)
+
 
 log_config = dict(
     interval=50,
-    hooks = [ dict(type='TextLoggerHook')]#, dict(type='WandbLoggerHook', init_kwargs=dict(project=project_name,name=name))]
+    hooks = [ dict(type='TextLoggerHook'), dict(type='WandbLoggerHook', init_kwargs=dict(project=project_name,name=name))]
     )
 
