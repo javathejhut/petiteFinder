@@ -8,8 +8,9 @@ model_type = "mmdet"
 model_device = "cuda"  # or 'cuda:0'
 
 model_path = os.path.normpath(
-    PROJECT_ROOT + "/model_weights/exp_500px_4-8anchor_linear_distortions_mult-scale_epoch_10.pth")
-model_config_path = os.path.normpath(PROJECT_ROOT + "/model_cfg/faster_rcnn_r50_fpn_1x_coco_petiteFinder_wdb.py")
+    PROJECT_ROOT + "/model_weights/1024px_epoch_17.pth")
+model_config_path = os.path.normpath(PROJECT_ROOT + "/model_cfg"
+                                                    "/faster_rcnn_r50_fpn_1x_coco_petiteFinder_wdb_chris.py")
 source_image_path = os.path.normpath(PROJECT_ROOT + "/COCO_dataset/images/test/")
 dataset_json_path = os.path.normpath(PROJECT_ROOT + "/COCO_dataset/annotations/test.json")
 
@@ -26,10 +27,11 @@ temp_json_path = os.path.normpath(PROJECT_ROOT + "temp_test.json")
 with open(temp_json_path, 'w', encoding='utf-8') as f:
     json.dump(temp_json, f, ensure_ascii=False, indent=4)
 
-model_confidence_threshold = 0.7
-post_process_type = "NMM"
-post_process_metric = "IOU"
-post_process_match_threshold = 0.3
+# optimizing on petite freq difference in val
+model_confidence_threshold = 0.6
+post_process_type = "GREEDYNMM"
+post_process_metric = "IOS"
+post_process_match_threshold = 0.5
 
 slice_height = 512
 slice_width = 512
@@ -57,6 +59,6 @@ predict(
         visual_export_format="png",
         dataset_json_path=temp_json_path,
         project="runs",
-        name="test_exp_newsahi",
+        name="test_exp",
         verbose=1
     )

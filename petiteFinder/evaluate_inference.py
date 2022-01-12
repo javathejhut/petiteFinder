@@ -1,5 +1,6 @@
 import os
 from tools import utils
+import numpy as np
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.getcwd() + os.sep, os.pardir))
 
@@ -24,8 +25,12 @@ gt_petite_freqs = utils.get_petite_frequency_per_img(gt_bbox_dict, gt_category_d
 COCO_mAP = utils.get_COCO_mAP(gt_bbox_dict, pred_bbox_dict, gt_category_dict)
 
 print("\nimage_id: ground truth petite frequency, predicted petite frequency\n")
+percent_errors = []
 for key in pred_petite_freqs:
-    print(key, gt_petite_freqs[key], pred_petite_freqs[key])
+    print(key, gt_petite_freqs[key], pred_petite_freqs[key], abs(gt_petite_freqs[key]- pred_petite_freqs[key])*100)
+    percent_errors.append(abs(gt_petite_freqs[key]- pred_petite_freqs[key])*100)
+
+print(np.mean(percent_errors), np.std(percent_errors))
 
 print("\nimage_id: grande precision, grande recall, petite precision, petite recall: \n")
 for key in precision_recall_categories.keys():

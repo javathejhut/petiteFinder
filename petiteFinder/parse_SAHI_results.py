@@ -15,12 +15,13 @@ with open(target_file, 'r') as summary:
         mAP_total= float(line.split('\t')[4])
         mAP_05 = float(line.split('\t')[5])
         mAP_075 = float(line.split('\t')[6])
+        percent_difference = float(line.split('\t')[7])
 
         output = [model_confidence_threshold, post_process_type, post_process_metric, post_process_threshold,
-                  mAP_total, mAP_05, mAP_075]
+                  mAP_total, mAP_05, mAP_075, percent_difference]
 
         run_info.append(output)
 
 
-for ele in sorted(run_info,key=lambda l:l[5], reverse=True)[0:10]:
+for ele in sorted(run_info,key=lambda l:l[7], reverse=False)[0:10]:
     print(ele)
