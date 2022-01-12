@@ -103,7 +103,7 @@ model = dict(
             max_per_img=100)))
 
 dataset_type = 'CocoDataset'
-data_root = '/home/klyshko/Desktop/petiteFinder/COCO_dataset_sliced/'
+data_root = '/home/groot/mmDetection/COCO_dataset_sliced/'
 classes = ('g', 'p')
 
 img_norm_cfg = dict(
@@ -192,7 +192,7 @@ checkpoint_config = dict(interval=1)
 custom_hooks = [dict(type='NumClassCheckHook')]
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-load_from = '/home/klyshko/Desktop/petiteFinder/checkpoints/faster_rcnn_r50_fpn_1x_coco_20200130-047c8118.pth'
+load_from = '/home/groot/mmDetection/checkpoints/faster_rcnn_r50_fpn_1x_coco_20200130-047c8118.pth'
 resume_from = None
 workflow = [('train', 1), ('val', 1)]
 
@@ -201,10 +201,10 @@ gpu_ids = range(0, 1)
 
 project_name = 'petiteFinder'
 name = 'exp_500px_4-8anchor_linear_distortions_mult-scale_crop-0.8'
-work_dir = '/media/klyshko/HDD/ML_runs/{}/{}'.format(project_name, name)
+work_dir = '/home/groot/mmDetection/work_dirs/{}/{}'.format(project_name, name)
 
 log_config = dict(
     interval=50,
-    hooks = [ dict(type='TextLoggerHook'), dict(type='WandbLoggerHook', init_kwargs=dict(project=project_name,name=name))]
+    hooks = [ dict(type='TextLoggerHook')]#, dict(type='WandbLoggerHook', init_kwargs=dict(project=project_name,name=name))]
     )
 

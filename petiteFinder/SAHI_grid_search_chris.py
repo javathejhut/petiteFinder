@@ -62,7 +62,7 @@ for pp_type in post_process_type:
                     overlap_height_ratio=overlap_height_ratio,
                     overlap_width_ratio=overlap_width_ratio,
                     export_visual=False,
-                    no_standard_prediction=False,
+                    no_standard_prediction=True,
                     visual_text_size=0.5,
                     visual_text_thickness=2,
                     visual_export_format="png",

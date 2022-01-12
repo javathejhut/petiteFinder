@@ -4,7 +4,7 @@ from tools import utils
 PROJECT_ROOT = os.path.abspath(os.path.join(os.getcwd() + os.sep, os.pardir))
 
 path_to_gt = os.path.normpath(PROJECT_ROOT + os.sep + 'COCO_dataset/annotations/test.json')
-path_to_pred = os.path.normpath(os.getcwd() + os.sep + "runs/predict/exp/result.json")
+path_to_pred = os.path.normpath(os.getcwd() + os.sep + "runs/test_exp/result.json")
 
 # necessary dictionaries to do gt ID to SAHI ID mapping
 gt_category_dict = utils.get_gt_category_dict(path_to_gt)
