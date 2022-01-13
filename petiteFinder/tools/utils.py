@@ -82,23 +82,45 @@ def get_precision_recall_grande_petite(IOU_threshold, gt_bboxes, pred_bboxes, gt
                 FP_p += 1
 
         # FN calculations
-        FN_g = len(gt_grande_bboxes) - TP_g
-        FN_p = len(gt_petite_bboxes) - TP_p
+        for g_gt in gt_grande_bboxes:
+            good_prediction = False
+            for g_pred in grande_bboxes:
+                if IOU(g_pred, g_gt) > 0:
+                    good_prediction = True
+                    break
+            if not good_prediction:
+                FN_g += 1
+
+
+        for p_gt in gt_petite_bboxes:
+            good_prediction = False
+            for p_pred in petite_bboxes:
+                if IOU(p_pred, p_gt) > 0:
+                    good_prediction = True
+                    break
+            if not good_prediction:
+                FN_p += 1
 
         if TP_g > 0:
             precision_grande = float(TP_g) / (TP_g + FP_g)
             recall_grande = float(TP_g) / (TP_g + FN_g)
         else:
-            precision_grande = 0.0
-            recall_grande = 0.0
+            if FN_g ==0:
+                recall_grande = 1.0
+            if FP_g==0:
+                precision_grande = 1.0
 
         if TP_p > 0:
 
             precision_petite = float(TP_p) / (TP_p + FP_p)
             recall_petite = float(TP_p) / (TP_p + FN_p)
+
         else:
-            precision_petite = 0.0
-            recall_petite = 0.0
+            if FN_p ==0:
+                recall_petite = 1.0
+            if FP_p==0:
+                precision_petite = 1.0
+
 
         precision_recall_g_p[image_id] = [precision_grande, recall_grande, precision_petite, recall_petite]
 
