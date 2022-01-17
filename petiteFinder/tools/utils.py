@@ -91,7 +91,6 @@ def get_precision_recall_grande_petite(IOU_threshold, gt_bboxes, pred_bboxes, gt
             if not good_prediction:
                 FN_g += 1
 
-
         for p_gt in gt_petite_bboxes:
             good_prediction = False
             for p_pred in petite_bboxes:
@@ -105,9 +104,9 @@ def get_precision_recall_grande_petite(IOU_threshold, gt_bboxes, pred_bboxes, gt
             precision_grande = float(TP_g) / (TP_g + FP_g)
             recall_grande = float(TP_g) / (TP_g + FN_g)
         else:
-            if FN_g ==0:
+            if FN_g == 0:
                 recall_grande = 1.0
-            if FP_g==0:
+            if FP_g == 0:
                 precision_grande = 1.0
 
         if TP_p > 0:
@@ -116,11 +115,10 @@ def get_precision_recall_grande_petite(IOU_threshold, gt_bboxes, pred_bboxes, gt
             recall_petite = float(TP_p) / (TP_p + FN_p)
 
         else:
-            if FN_p ==0:
+            if FN_p == 0:
                 recall_petite = 1.0
-            if FP_p==0:
+            if FP_p == 0:
                 precision_petite = 1.0
-
 
         precision_recall_g_p[image_id] = [precision_grande, recall_grande, precision_petite, recall_petite]
 
@@ -172,7 +170,6 @@ def get_gt_bboxes(path_to_gt):
 
 
 def get_pred_bboxes_SAHI(path_to_pred, gt_category_dict, gt_img_dict):
-
     pred_bbox_dict = {}
     with open(path_to_pred, 'rt', encoding='UTF-8') as pred:
         pred_json = json.load(pred)
@@ -202,6 +199,24 @@ def get_pred_bboxes_SAHI(path_to_pred, gt_category_dict, gt_img_dict):
                                               sahi_cat_name_to_gt_id[ann["category_name"]],
                                               ann["score"]])
     return pred_bbox_dict
+
+
+def save_coco_json(dest, images=None, annotations=None, licenses=None, categories=None, info=None):
+
+    if info is None:
+        info = []
+    if images is None:
+        images = []
+    if annotations is None:
+        annotations = []
+    if licenses is None:
+        licenses = []
+    if categories is None:
+        categories = []
+
+    with open(dest, 'wt', encoding='UTF-8') as coco_output:
+        json.dump({'images': images, 'annotations': annotations, 'licenses': licenses, 'categories': categories,
+                   'info': info}, coco_output, indent=2, sort_keys=True)
 
 
 def get_petite_frequency_per_img(bbox_dict, gt_category_dict) -> dict:
