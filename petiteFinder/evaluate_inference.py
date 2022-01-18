@@ -1,5 +1,5 @@
 import os
-from tools import utils
+from tools import utils_evaluation
 import numpy as np
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.getcwd() + os.sep, os.pardir))
@@ -8,25 +8,25 @@ path_to_gt = os.path.normpath(PROJECT_ROOT + os.sep + 'COCO_dataset/annotations/
 path_to_pred = os.path.normpath(os.getcwd() + os.sep + "runs/test_exp/result.json")
 
 # necessary dictionaries to do gt ID to SAHI ID mapping
-gt_category_dict = utils.get_gt_category_dict(path_to_gt)
-gt_img_dict = utils.get_gt_image_dict(path_to_gt)
+gt_category_dict = utils_evaluation.get_gt_category_dict(path_to_gt)
+gt_img_dict = utils_evaluation.get_gt_image_dict(path_to_gt)
 
-gt_bbox_dict = utils.get_gt_bboxes(path_to_gt)
-pred_bbox_dict = utils.get_pred_bboxes_SAHI(path_to_pred, gt_category_dict, gt_img_dict)
+gt_bbox_dict = utils_evaluation.get_gt_bboxes(path_to_gt)
+pred_bbox_dict = utils_evaluation.get_pred_bboxes_SAHI(path_to_pred, gt_category_dict, gt_img_dict)
 
 # coco_metrics = evaluate_inference.return_COCO_eval_metrics(gt_bbox_dict, pred_bbox_dict, gt_category_dict)
 # print(coco_metrics)
-category_counts_g = utils.get_category_count_per_img(gt_bbox_dict, gt_category_dict,'g')
-category_counts_p = utils.get_category_count_per_img(gt_bbox_dict, gt_category_dict,'p')
+category_counts_g = utils_evaluation.get_category_count_per_img(gt_bbox_dict, gt_category_dict,'g')
+category_counts_p = utils_evaluation.get_category_count_per_img(gt_bbox_dict, gt_category_dict,'p')
 
 print(np.mean([category_counts_g[key]+ category_counts_p[key] for key in category_counts_g.keys()]))
 
-precision_recall_categories = utils.get_precision_recall_grande_petite(0.5, gt_bbox_dict, pred_bbox_dict,
+precision_recall_categories = utils_evaluation.get_precision_recall_grande_petite(0.5, gt_bbox_dict, pred_bbox_dict,
                                                                        gt_category_dict)
-pred_petite_freqs = utils.get_petite_frequency_per_img(pred_bbox_dict,gt_category_dict)
-gt_petite_freqs = utils.get_petite_frequency_per_img(gt_bbox_dict, gt_category_dict)
+pred_petite_freqs = utils_evaluation.get_petite_frequency_per_img(pred_bbox_dict,gt_category_dict)
+gt_petite_freqs = utils_evaluation.get_petite_frequency_per_img(gt_bbox_dict, gt_category_dict)
 
-COCO_mAP = utils.get_COCO_mAP(gt_bbox_dict, pred_bbox_dict, gt_category_dict)
+COCO_mAP = utils_evaluation.get_COCO_mAP(gt_bbox_dict, pred_bbox_dict, gt_category_dict)
 
 #print("\nimage_id: ground truth petite frequency, predicted petite frequency\n")
 print("\navg mean, std in percent freq error:\n")
