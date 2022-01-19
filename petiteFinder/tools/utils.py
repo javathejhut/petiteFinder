@@ -1,9 +1,11 @@
 import os
 import json
 import numpy as np
+import pandas as pd
+from sahi.utils.cv import visualize_object_predictions
 
-def save_coco_json(dest, images=None, annotations=None, licenses=None, categories=None, info=None):
 
+def save_coco_json(dest, prefix, images=None, annotations=None, licenses=None, categories=None, info=None):
     if info is None:
         info = []
     if images is None:
@@ -15,59 +17,52 @@ def save_coco_json(dest, images=None, annotations=None, licenses=None, categorie
     if categories is None:
         categories = []
 
-    with open(dest, 'wt', encoding='UTF-8') as coco_output:
+    with open(os.path.normpath(os.path.join(dest, prefix+"_predicted.json")) , 'wt', encoding='UTF-8') as coco_output:
         json.dump({'images': images, 'annotations': annotations, 'licenses': licenses, 'categories': categories,
                    'info': info}, coco_output, indent=2, sort_keys=True)
 
-def get_petite_frequency_per_img(bbox_dict, gt_category_dict) -> dict:
-    """
-    Function for computing petite frequency in image.
 
-    Args:
-        bbox_dict (dict):
-            key=image_id, value=[[xmin, ymin, xmax, ymax, class_id, difficult, crowd]...]
+def save_freq_csv(coco_dict, dest, prefix):
 
-        gt_category_dict (dict):
-            standard COCO categories dict format
+    cat_dicts=[get_category_count_per_img(coco_dict, 'g'), get_category_count_per_img(coco_dict, 'p')]
 
-    Returns:
-        petite_freq_dict (dict): dict(key=image_id, value=float(petite frequency in image))
+    raw_df = pd.concat([pd.DataFrame(cat, index=[0]) for cat in cat_dicts], axis=0)
+    complete_df = raw_df.T
 
-    """
-    petite_freq_dict = {}
-    for cat in gt_category_dict:
-        if cat["name"] == 'g':
-            grande_id = cat["id"]
-        elif cat["name"] == 'p':
-            petite_id = cat["id"]
-        else:
-            print("COCO CATEGORY MISMATCH")
+    complete_df.index.name = 'filename'
+    id_to_filename_map = {img_id: file_name for (img_id, file_name) in [[entry["id"], entry["file_name"]]
+                                                                        for entry in coco_dict["images"]]}
 
-    for img_id in bbox_dict.keys():
-        grande_count = 0
-        petite_count = 0
-        for bbox in bbox_dict[img_id]:
-            if bbox[4] == grande_id:
-                grande_count += 1
+    complete_df.index = complete_df.index.to_series().map(id_to_filename_map)
+    complete_df.columns = ['grande_count', 'petite_count']
 
-            elif bbox[4] == petite_id:
-                petite_count += 1
+    complete_df = complete_df.assign(
+        percent_petite=complete_df['petite_count'] / (complete_df['grande_count'] + complete_df['petite_count']))
+    complete_df = complete_df.assign(
+        total_count=(complete_df['grande_count'] + complete_df['petite_count']))
 
-        petite_freq_dict[img_id] = float(petite_count) / (petite_count + grande_count)
+    complete_df.to_csv(os.path.normpath(os.path.join(dest, prefix+"_freq.csv")))
 
-    return petite_freq_dict
+# def save_annotated_images()
+#     output_dir = str(visual_dir / Path(relative_filepath).parent)
+#     visualize_object_predictions(
+#         np.ascontiguousarray(image_as_pil),
+#         object_prediction_list=object_prediction_list,
+#         rect_th=visual_bbox_thickness,
+#         text_size=visual_text_size,
+#         text_th=visual_text_thickness,
+#         output_dir=output_dir,
+#         file_name=filename_without_extension,
+#         export_format=visual_export_format,
+#     )
 
-
-def get_category_count_per_img(bbox_dict, gt_category_dict, category_name) -> dict:
+def get_category_count_per_img(coco_dict, category_name) -> dict:
     """
     Function for computing count of object category in image ('g' or 'p').
 
     Args:
-        bbox_dict (dict):
-            key=image_id, value=[[xmin, ymin, xmax, ymax, class_id, difficult, crowd]...]
-
-        gt_category_dict (dict):
-            standard COCO categories dict format
+        coco_dict (dict):
+            standard coco json dict format
 
         category_name (str):
             'p' or 'g'
@@ -78,20 +73,17 @@ def get_category_count_per_img(bbox_dict, gt_category_dict, category_name) -> di
     """
 
     count_per_img_dict = {}
-    assert category_name in [cat["name"] for cat in gt_category_dict], "category not in ground truth category dict"
+    assert category_name in ['g', 'p'], "category not in ground truth category dict"
 
-    for cat in gt_category_dict:
-        if cat["name"] == category_name:
-            target_id = cat["id"]
+    img_ids = [entry["id"] for entry in coco_dict["images"]]
+    annotations = [entry for entry in coco_dict["annotations"]]
 
-    for img_id in bbox_dict.keys():
-        target_cat_count = 0
-        for bbox in bbox_dict[img_id]:
-            if bbox[4] == target_id:
-                target_cat_count += 1
-
-        count_per_img_dict[img_id] = target_cat_count
+    for img_id in img_ids:
+        category_count = 0
+        for ann in annotations:
+            if ann["image_id"] == img_id:
+                if ann["category_name"] == category_name:
+                    category_count+=1
+        count_per_img_dict[img_id] = category_count
 
     return count_per_img_dict
-
-

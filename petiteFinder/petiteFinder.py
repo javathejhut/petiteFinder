@@ -1,18 +1,64 @@
 from sahi.predict import get_sliced_prediction
+from sahi.utils.file import import_class
 import os
 import json
 import argparse
-from sahi.utils.file import Path, import_class, increment_path, list_files, save_json, save_pickle
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from settings import *
-from tools import utils
+import math
+import pandas as pd
 
-target_location = PROJECT_ROOT + "/petiteFinder/petiteFinder_json_guitest/"
 
-slice_height=512
-slice_width=512
+def get_parsers():
+    # top level parser
+    parser = argparse.ArgumentParser(description="Run petiteFinder, an automated yeast Petite frequency"
+                                                 "/colony detection pipeline.")
 
-def compute_optimal_slices(target_img_height, target_img_width):
+    subparsers = parser.add_subparsers(help='Run predict or ammend command in petiteFinder.',
+                                       dest='command', title='subcommands')
+
+    # predict parser
+    predict_parser = subparsers.add_parser('predict', help="Predict Petite/Grande colony locations.")
+    predict_parser.add_argument("-i", "--inputdir", dest="input_path", metavar="/path/to/images",
+                                help="Enter the full path to the target image or directory containing your target "
+                                     "plate images.",
+                                required=True, type=str)
+
+    predict_parser.add_argument("-o", "--outputdir", dest="output_path", metavar="/path/to/output",
+                                help="Enter the full path where json/csv/annotated_images should be exported to.",
+                                required=True, type=str)
+
+    predict_parser.add_argument("-d", "--device", dest="device", metavar="cpu/cuda",
+                                help="Enter the model device.",
+                                type=str, required=False, default="cuda", choices=["cpu", "cuda"])
+
+    predict_parser.add_argument("-p", "--predict", dest="predict", metavar="complete",
+                                help="Enter the prediction mode. Choices are 'complete', 'frequency_only',"
+                                     "'json_only', 'visualize_only', 'live_visualize'.",
+                                type=str, required=False, default='complete', choices=["complete",
+                                                                                       "frequency_only",
+                                                                                       "json_only",
+                                                                                       "visualize_only",
+                                                                                       "live_visualize"])
+
+    predict_parser.add_argument("-n", "--name", dest="name", metavar="prefix",
+                                help="Prefix of json annotation/csv frequency file.",
+                                required=False, type=str, default="pF")
+
+    # amend parser
+    amend_parser = subparsers.add_parser('amend', help="Amend existing petiteFinder annotation with GUI.")
+    amend_parser.add_argument("-i", "--inputjson", dest="json_path", metavar="/path/to/json",
+                              help="Path to json to amend through GUI.",
+                              required=True, type=str)
+
+    amend_parser.add_argument("-n", "--name", dest="name", metavar="suffix",
+                              help="Suffix to append to json after amending.",
+                              required=True, type=str)
+
+    return parser
+
+
+def compute_optimal_slices(target_img_width, target_img_height):
     """
        compute SAHI slice height/width that best recreates trained sliced
        image view of petri dish
@@ -27,7 +73,41 @@ def compute_optimal_slices(target_img_height, target_img_width):
                slice height, slice width
     """
     target_img_area = target_img_height * target_img_width
-    trained_img_fraction = TRAINED_SLICE_WIDTH*TRAINED_SLICE_HEIGHT/(TRAINED_IMAGE_HEIGHT*TRAINED_IMAGE_WIDTH)
+    trained_img_fraction = TRAINED_SLICE_WIDTH * TRAINED_SLICE_HEIGHT / (TRAINED_IMAGE_HEIGHT * TRAINED_IMAGE_WIDTH)
+
+    slice_height = int(math.sqrt(target_img_area * trained_img_fraction))
+    slice_width = slice_height
+
+    return slice_width, slice_height
+
+
+def list_image_files(directory):
+    """
+    provide list of image files of supported type in directory
+    Args:
+        directory: str
+            "data/coco/"
+
+    Returns:
+        filepath_list : list
+            List of file paths
+    """
+    filepath_list = []
+    supported_types = [".jpg", ".jpeg", ".png", ".tiff", ".bmp"]
+
+    for file in os.listdir(directory):
+        if any(somestr in file for somestr in supported_types):
+            filepath = os.path.join(directory, file)
+            filepath_list.append(filepath)
+
+    number_of_files = len(filepath_list)
+    folder_name = directory.split(os.sep)[-1]
+
+    if folder_name == "":
+        folder_name = directory.split(os.sep)[-2]
+    print("There are {} image files in folder {} for petiteFinder to process.".format(number_of_files, folder_name))
+
+    return filepath_list
 
 
 def perform_inference_coco(target, model_device):
@@ -45,16 +125,6 @@ def perform_inference_coco(target, model_device):
     """
     coco_dict = {"annotations": [], "images": []}
 
-    # target structure (always list of file paths)
-    if os.path.isdir(target):
-        image_path_list = list_files(
-            directory=target,
-            contains=[".jpg", ".jpeg", ".png", ".tiff", ".bmp"],
-            verbose=1
-        )
-    else:
-        image_path_list = [target]
-
     # load model with SAHI wrapper
     DetectionModel = import_class(MODEL_CLASS_NAME)
     detection_model = DetectionModel(
@@ -65,9 +135,15 @@ def perform_inference_coco(target, model_device):
         category_mapping=None,
         category_remapping=None,
         load_at_init=False,
-        image_size=None,
+        image_size=None
     )
     detection_model.load_model()
+
+    if os.path.isdir(target):
+        image_path_list = list_image_files(target)
+
+    else:
+        image_path_list = [target]
 
     # iterate over image targets
     for img_id, img in enumerate(image_path_list):
@@ -75,6 +151,7 @@ def perform_inference_coco(target, model_device):
         # store image information
         im = Image.open(img)
         width, height = im.size
+        slice_height, slice_width = compute_optimal_slices(width, height)
         coco_dict["images"].append({"file_name": img, "height": height, "width": width, "id": img_id})
 
         pred_result = get_sliced_prediction(image=img, detection_model=detection_model, slice_height=slice_height,
@@ -97,59 +174,162 @@ def perform_inference_coco(target, model_device):
 
     return coco_dict
 
-output = perform_inference_coco(target_location, "cuda")
 
-utils.save_coco_json(dest=os.getcwd() +os.sep+ "/petiteFinder_json_guitest/petiteFinder_output.json",
-                     annotations=output["annotations"],
-                     images=output["images"])
+def save_coco_json(destination, prefix, images=None, annotations=None, licenses=None, categories=None, info=None):
+    if info is None:
+        info = []
+    if images is None:
+        images = []
+    if annotations is None:
+        annotations = []
+    if licenses is None:
+        licenses = []
+    if categories is None:
+        categories = []
 
-#
-#     test_img_path,
-#     detection_model=None,
-#     image_size: int = None,
-#     slice_height: int = 512,
-#     slice_width: int = 512,
-#     overlap_height_ratio: float = 0.2,
-#     overlap_width_ratio: float = 0.2,
-#     perform_standard_pred: bool = True,
-#     postprocess_type: str = "GREEDYNMM",
-#     postprocess_match_metric: str = "IOS",
-#     postprocess_match_threshold: float = 0.5,
-#     postprocess_class_agnostic: bool = False,
-#     verbose: int = 1,
-# )
+    with open(os.path.normpath(os.path.join(destination, prefix + "_predicted.json")), 'wt', encoding='UTF-8') \
+            as coco_output:
+        json.dump({'images': images, 'annotations': annotations, 'licenses': licenses, 'categories': categories,
+                   'info': info}, coco_output, indent=2, sort_keys=True)
 
-# def main():
-#
-#     args = get_cli_arguments()
-#
-#
-# def get_cli_arguments():
-#
-#     parser = argparse.ArgumentParser(description="Run automated yeast Petite frequency/colony pipeline")
-#     parser.add_argument('-IOU', '-iou', required=True, help="intersection over union threshold for precision/recall",
-#                         metavar="iou_threshold",
-#                         type=float)
-#
-#     parser =
 
-# predict(
-#     model_type=model_type,
-#     model_path=model_path,
-#     model_config_path=model_config_path,
-#     model_device=model_device,
-#     model_confidence_threshold=model_confidence_threshold,
-#     source=source_image_path,
-#     slice_height=slice_height,
-#     slice_width=slice_width,
-#     overlap_height_ratio=overlap_height_ratio,
-#     overlap_width_ratio=overlap_width_ratio,
-#     export_visual=True,
-#     no_standard_prediction=True,
-#     visual_bbox_thickness=1,
-#     visual_text_size=0.5,
-#     visual_text_thickness=2,
-#     visual_export_format="png",
-#     dataset_json_path=temp_json_path,
-#     verbose=1
-# )
+def save_freq_csv(coco_dict, destination, prefix):
+    cat_dicts = [get_category_count_per_img(coco_dict, 'g'), get_category_count_per_img(coco_dict, 'p')]
+
+    raw_df = pd.concat([pd.DataFrame(cat, index=[0]) for cat in cat_dicts], axis=0)
+    complete_df = raw_df.T
+
+    complete_df.index.name = 'filename'
+    id_to_filename_map = {img_id: file_name for (img_id, file_name) in [[entry["id"], entry["file_name"]]
+                                                                        for entry in coco_dict["images"]]}
+
+    complete_df.index = complete_df.index.to_series().map(id_to_filename_map)
+    complete_df.columns = ['grande_count', 'petite_count']
+
+    complete_df = complete_df.assign(
+        percent_petite=complete_df['petite_count'] / (complete_df['grande_count'] + complete_df['petite_count']))
+    complete_df = complete_df.assign(
+        total_count=(complete_df['grande_count'] + complete_df['petite_count']))
+
+    complete_df.to_csv(os.path.abspath(os.path.join(destination, prefix + "_freq.csv")))
+
+
+def save_annotated_images(coco_dict, destination, prefix):
+    images = [entry for entry in coco_dict["images"]]
+    annotations = [entry for entry in coco_dict["annotations"]]
+
+    folder_name = "pF_annotated_images"
+    output_location = os.path.normpath(os.path.join(destination, folder_name))
+
+    textbox_width = 60
+    textbox_height = 12
+    rect_thickness = 4
+    font_size = int(1.5 * textbox_height)
+
+    font = ImageFont.truetype(os.path.join(os.path.join(PROJECT_ROOT, "fonts"), "FreeMono.ttf"), size=font_size)
+    if not os.path.exists(output_location):
+        os.makedirs(output_location)
+
+    for img in images:
+
+        file_name = img["file_name"].split(os.sep)[-1]
+        im_original = Image.open(img["file_name"])
+        img_id = img["id"]
+        im_copy = im_original.copy()
+        draw = ImageDraw.Draw(im_copy)
+
+        for ann in annotations:
+
+            if ann["image_id"] == img_id:
+
+                textbox_width_temp = max(ann["bbox"][2], font.getsize("g:%2.2f" % ann["score"])[0])
+                bbox_to_rect = (ann["bbox"][0], ann["bbox"][1],
+                                ann["bbox"][0] + ann["bbox"][2], ann["bbox"][1] + ann["bbox"][3])
+
+                text_rect = (bbox_to_rect[0], bbox_to_rect[1] - textbox_height,
+                             bbox_to_rect[0] + textbox_width_temp, bbox_to_rect[1])
+
+                if ann["category_name"] == 'g':
+                    colour = 'green'
+                    draw.rectangle(bbox_to_rect, outline=colour, width=rect_thickness)
+                    draw.rectangle(text_rect,
+                                   outline=colour, fill=colour)
+                    draw.text((text_rect[0], text_rect[1]-textbox_height/4), "g:%2.2f" % ann["score"], font=font)
+
+                elif ann["category_name"] == 'p':
+                    colour = 'red'
+                    draw.rectangle(bbox_to_rect, outline=colour, width=rect_thickness)
+                    draw.rectangle(text_rect,
+                                   outline=colour, fill=colour)
+                    draw.text((text_rect[0], text_rect[1]-textbox_height/4), "p:%2.2f" % ann["score"], font=font)
+
+        im_copy.save(os.path.normpath(os.path.join(output_location, prefix + '_annotated_' + file_name)))
+
+
+def get_category_count_per_img(coco_dict, category_name) -> dict:
+    """
+    Function for computing count of object category in image ('g' or 'p').
+
+    Args:
+        coco_dict (dict):
+            standard coco json dict format
+
+        category_name (str):
+            'p' or 'g'
+
+    Returns:
+        count_per_img_dict (dict): key=image_id, value=count of category_name objects in image
+
+    """
+
+    count_per_img_dict = {}
+    assert category_name in ['g', 'p'], "category not in ground truth category dict"
+
+    img_ids = [entry["id"] for entry in coco_dict["images"]]
+    annotations = [entry for entry in coco_dict["annotations"]]
+
+    for img_id in img_ids:
+        category_count = 0
+        for ann in annotations:
+            if ann["image_id"] == img_id:
+                if ann["category_name"] == category_name:
+                    category_count += 1
+        count_per_img_dict[img_id] = category_count
+
+    return count_per_img_dict
+
+
+if __name__ == "__main__":
+    top_parser = get_parsers()
+    args = top_parser.parse_args()
+
+    if args.command == "amend":
+        print("amend")
+    elif args.command == "predict":
+
+        if args.predict == "complete":
+            coco_prediction_dict = perform_inference_coco(args.input_path, args.device)
+            save_coco_json(destination=args.output_path, prefix=args.name,
+                           annotations=coco_prediction_dict["annotations"],
+                           images=coco_prediction_dict["images"])
+            save_annotated_images(coco_dict=coco_prediction_dict, destination=args.output_path, prefix=args.name)
+            save_freq_csv(coco_dict=coco_prediction_dict, destination=args.output_path, prefix=args.name)
+
+        elif args.predict == "json_only":
+            coco_prediction_dict = perform_inference_coco(args.input_path, args.device)
+            save_coco_json(destination=args.output_path, prefix=args.name,
+                           annotations=coco_prediction_dict["annotations"],
+                           images=coco_prediction_dict["images"])
+
+        elif args.predict == "frequency_only":
+            coco_prediction_dict = perform_inference_coco(args.input_path, args.device)
+            save_freq_csv(coco_dict=coco_prediction_dict, destination=args.output_path, prefix=args.name)
+
+        elif args.predict == "visualize_only":
+            coco_prediction_dict = perform_inference_coco(args.input_path, args.device)
+            save_annotated_images(coco_dict=coco_prediction_dict, destination=args.output_path, prefix=args.name)
+
+        elif args.predict == "live_visualize":
+            coco_prediction_dict = perform_inference_coco(args.input_path, args.device)
+            # save_annotated_images(args.output_path)
+            # live_visualization(args.output_path)
