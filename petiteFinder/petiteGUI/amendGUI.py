@@ -1,26 +1,30 @@
-from tkinter import *    
+from tkinter import *
 from PIL import ImageTk, Image
-from tkinter import filedialog
-
 import json
 
 MAX_SIZE = (800, 800)
 REMOVE = 0
 DRAW = 1
 
+MODE = IntVar
+PETITE = IntVar
+IMG_ID = IntVar
+PATH_TO_SAVE = ""
+JSON_DATA = {}
+
 
 def is_within_box(x, y, bbox):
-    '''Checking if the x,y point is within the box'''
-    if (x >= bbox.x_start and x <= bbox.x_end) and (y >= bbox.y_start and y <= bbox.y_end):
+    """Checking if the x,y point is within the box"""
+    if (bbox.x_start <= x <= bbox.x_end) and (bbox.y_start <= y <= bbox.y_end):
         return True
     else:
         return False
 
+
 class BBox:
     def __init__(self, **kwargs):
 
-        
-        if len(kwargs) == 1: 
+        if len(kwargs) == 1:
             json_ann = kwargs['json_ann']
 
             self.x_start, self.y_start, self.x_end, self.y_end = (
@@ -43,7 +47,7 @@ class BBox:
             self.ratio = None
             self.drawn_obj = None
 
-        elif len(kwargs) == 3: 
+        elif len(kwargs) == 3:
             rect = kwargs['rect']
             frame = kwargs['frame']
             category_name = kwargs['category_name']
@@ -61,12 +65,11 @@ class BBox:
             self.img_id = IMG_ID.get()
             self.drawn_obj = rect
             self.category_name = category_name
-   
+
         else:
             print('BBOX class error!')
             print(**kwargs)
-        
-        
+
     def rescale(self, ratio):
         self.x_start *= ratio
         self.y_start *= ratio
@@ -79,40 +82,35 @@ class BBox:
         color = 'green' if self.category_name == 'p' else 'blue'
         if not self.rescaled:
             self.rescale(frame.ratio)
-        self.drawn_obj = frame.canvas.create_rectangle(self.x_start, self.y_start, self.x_end, self.y_end, outline=color)
+        self.drawn_obj = frame.canvas.create_rectangle(self.x_start, self.y_start, self.x_end, self.y_end,
+                                                       outline=color)
 
     def remove_from_canvas(self, canvas):
         canvas.delete(self.drawn_obj)
         self.drawn_obj = None
 
     def convert_to_ann(self):
-        json_ann = {
-            "iscrowd": 0,
-            "segmentation": [],
-            "category_name": self.category_name,
-            "category_id": 1 if self.category_name == 'p' else 0,
-            "score" : self.score,
-            "image_id" : self.img_id
-        }
-        json_ann['bbox'] = [
-            self.x_start_orig,
-            self.y_start_orig,
-            self.x_end_orig - self.x_start_orig,
-            self.y_end_orig - self.y_start_orig
-        ]
+        json_ann = {"iscrowd": 0, "segmentation": [], "category_name": self.category_name,
+                    "category_id": 1 if self.category_name == 'p' else 0, "score": self.score, "image_id": self.img_id,
+                    'bbox': [
+                        self.x_start_orig,
+                        self.y_start_orig,
+                        self.x_end_orig - self.x_start_orig,
+                        self.y_end_orig - self.y_start_orig
+                    ]}
         json_ann['area'] = json_ann['bbox'][2] * json_ann['bbox'][3]
         return json_ann
 
 
 class ButtonsFrame(Frame):
     def __init__(self, master, data, iframe):
-        Frame.__init__(self,master=None)
+        Frame.__init__(self, master=None)
         self.iframe = iframe
 
-        self.leftButton = Button(self, command=self.leftButtonClick, text="<")  
+        self.leftButton = Button(self, command=self.leftButtonClick, text="<")
         self.rightButton = Button(self, command=self.rightButtonClick, text=">")
-        self.saveButton = Button(self, command=self.saveButtonClick, text="Save")  
-        self.remButton = Button(self, command=self.remButtonClick, text="Remove Mode")  
+        self.saveButton = Button(self, command=self.saveButtonClick, text="Save")
+        self.remButton = Button(self, command=self.remButtonClick, text="Remove Mode")
         self.drawButton = Button(self, command=self.drawButtonClick, text="Draw Mode")
         self.delSelButton = Button(self, command=self.delSelButtonClick, text="Delete selected", state='disabled')
         self.petButton = Button(self, command=self.petButtonClick, text="Petite")
@@ -124,11 +122,10 @@ class ButtonsFrame(Frame):
         self.class_text = StringVar()
         self.update_text()
         self.imgid_text = StringVar(self, str(IMG_ID.get()))
-        
-        self.modeLabel = Label(self, textvariable=self.mode_text)
-        self.imgidLabel = Label(self, textvariable=self.imgid_text) 
-        self.classLabel = Label(self, textvariable=self.class_text) 
 
+        self.modeLabel = Label(self, textvariable=self.mode_text)
+        self.imgidLabel = Label(self, textvariable=self.imgid_text)
+        self.classLabel = Label(self, textvariable=self.class_text)
 
         self.leftButton.pack(fill=Y, side=LEFT)
         self.imgidLabel.pack(fill=Y, side=LEFT)
@@ -139,8 +136,8 @@ class ButtonsFrame(Frame):
         self.delSelButton.pack(fill=Y, side=LEFT)
         self.petButton.pack(fill=Y, side=LEFT)
         self.grandButton.pack(fill=Y, side=LEFT)
-        self.modeLabel.pack(fill=Y, side=LEFT, padx=(10, 10), pady=(10,10))
-        self.classLabel.pack(fill=Y, side=LEFT, padx=(10, 10), pady=(10,10))
+        self.modeLabel.pack(fill=Y, side=LEFT, padx=(10, 10), pady=(10, 10))
+        self.classLabel.pack(fill=Y, side=LEFT, padx=(10, 10), pady=(10, 10))
 
     def update_text(self):
         self.mode_text.set("Draw mode" if MODE.get() == DRAW else "Remove mode")
@@ -158,9 +155,8 @@ class ButtonsFrame(Frame):
     def saveButtonClick(self):
 
         self.iframe.annotations[IMG_ID.get()] = [bbox.convert_to_ann() for bbox in self.iframe.bboxes]
-        file_to_save = 'updated.json'
-        self.iframe.save_coco_annotations(file_to_save) ## provide a filename as an argument
-        print('Saved to {}'.format(file_to_save)) 
+        self.iframe.save_coco_annotations(PATH_TO_SAVE)
+        print('Saved to {}'.format(PATH_TO_SAVE))
 
     def leftButtonClick(self):
         if IMG_ID.get() > 0:
@@ -184,15 +180,15 @@ class ButtonsFrame(Frame):
         MODE.set(REMOVE)
         self.update_text()
 
-    def drawButtonClick(self):  
+    def drawButtonClick(self):
         MODE.set(DRAW)
         self.update_text()
 
-    def petButtonClick(self):  
+    def petButtonClick(self):
         PETITE.set(1)
         self.update_text()
 
-    def grandButtonClick(self):  
+    def grandButtonClick(self):
         PETITE.set(0)
         self.update_text()
 
@@ -215,7 +211,7 @@ class ButtonsFrame(Frame):
 
         if event.char.lower() == 'g':
             PETITE.set(0)
-        
+
         if (MODE.get() == REMOVE) and (event.keysym == 'Delete' or event.keysym == 'BackSpace'):
             for bbox in self.iframe.selected_bboxes:
                 self.iframe.canvas.delete(bbox.drawn_obj)
@@ -223,14 +219,15 @@ class ButtonsFrame(Frame):
             self.iframe.selected_bboxes = []
 
         self.update_text()
-        
-       
+
+
 class ImageFrame(Frame):
     def __init__(self, master, data):
-        Frame.__init__(self,master=None, bd=2, relief=SUNKEN)
+        Frame.__init__(self, master=None, bd=2, relief=SUNKEN)
 
+        self.x = None
         self.create_canvas()
-        
+
         self.data = data
         self.parse_coco_annotations()
         self.updated_data = None
@@ -244,7 +241,6 @@ class ImageFrame(Frame):
 
         self.bboxes = None
         self.selected_bboxes = []
-        
 
         # chose an image -> annotations -> draw both
         self.chose_data()
@@ -261,8 +257,6 @@ class ImageFrame(Frame):
         self.canvas.bind("<B1-Motion>", self.on_move_press)
         self.canvas.bind("<ButtonRelease-1>", self.on_button_release)
 
-
-
     def create_canvas(self):
         """Crete a required canvas"""
         self.x = self.y = 0
@@ -270,17 +264,17 @@ class ImageFrame(Frame):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        self.yscroll=Scrollbar(self,orient=VERTICAL)
-        self.xscroll=Scrollbar(self,orient=HORIZONTAL)
+        self.yscroll = Scrollbar(self, orient=VERTICAL)
+        self.xscroll = Scrollbar(self, orient=HORIZONTAL)
         self.yscroll.config(command=self.canvas.yview)
         self.xscroll.config(command=self.canvas.xview)
 
         self.canvas.config(yscrollcommand=self.yscroll.set)
         self.canvas.config(xscrollcommand=self.xscroll.set)
 
-        self.canvas.grid(row=0,column=0,sticky=N+S+E+W)
-        self.yscroll.grid(row=0,column=1,stick=N+S)
-        self.xscroll.grid(row=1,column=0,sticky=E+W)
+        self.canvas.grid(row=0, column=0, sticky=N + S + E + W)
+        self.yscroll.grid(row=0, column=1, stick=N + S)
+        self.xscroll.grid(row=1, column=0, sticky=E + W)
 
     def chose_data(self):
         """
@@ -291,7 +285,7 @@ class ImageFrame(Frame):
 
     def draw_img(self):
         self.im = Image.open(self.image_fname)
-        
+
         self.ratio = min(
             MAX_SIZE[0] / self.im.size[0],
             MAX_SIZE[1] / self.im.size[1]
@@ -307,9 +301,9 @@ class ImageFrame(Frame):
         self.canvas.config(scrollregion=(self.canvas.bbox(ALL)))
 
     def draw_ann(self):
-        if not self.bboxes: 
+        if not self.bboxes:
             self.bboxes = [BBox(json_ann=json_ann) for json_ann in self.image_annotations]
-        
+
         for bbox in self.bboxes:
             bbox.draw(self)
 
@@ -319,7 +313,7 @@ class ImageFrame(Frame):
         """
         self.annotations = {}
         for img_id in range(num_img(self.data)):
-            self.annotations[img_id] = [datum for datum in data['annotations'] if datum['image_id'] == img_id]
+            self.annotations[img_id] = [datum for datum in JSON_DATA['annotations'] if datum['image_id'] == img_id]
 
     def save_coco_annotations(self, filename='updated.json'):
         """
@@ -334,7 +328,7 @@ class ImageFrame(Frame):
             "info": [],
             "licenses": [],
             "images": self.data['images'],
-            "annotations" : coco_annotations
+            "annotations": coco_annotations
         }
 
         with open(filename, 'w', encoding='utf-8') as f:
@@ -346,14 +340,14 @@ class ImageFrame(Frame):
         Chose a bbox for deletion [in a remove mode]
         '''
 
-        if MODE.get() == DRAW: 
+        if MODE.get() == DRAW:
             self.start_x = self.canvas.canvasx(event.x)
             self.start_y = self.canvas.canvasy(event.y)
 
             # create rectangle if not yet exist
             if not self.temp_rect:
                 self.temp_rect = self.canvas.create_rectangle((self.x, self.y, 1, 1), outline='white')
-        
+
         if MODE.get() == REMOVE:
             for bbox in self.bboxes:
                 if is_within_box(event.x, event.y, bbox):
@@ -368,13 +362,13 @@ class ImageFrame(Frame):
             curY = self.canvas.canvasy(event.y)
 
             w, h = self.canvas.winfo_width(), self.canvas.winfo_height()
-            if event.x > 0.9*w:
-                self.canvas.xview_scroll(1, 'units') 
-            elif event.x < 0.1*w:
+            if event.x > 0.9 * w:
+                self.canvas.xview_scroll(1, 'units')
+            elif event.x < 0.1 * w:
                 self.canvas.xview_scroll(-1, 'units')
-            if event.y > 0.9*h:
-                self.canvas.yview_scroll(1, 'units') 
-            elif event.y < 0.1*h:
+            if event.y > 0.9 * h:
+                self.canvas.yview_scroll(1, 'units')
+            elif event.y < 0.1 * h:
                 self.canvas.yview_scroll(-1, 'units')
 
             # expand rectangle as you drag the mouse
@@ -386,7 +380,7 @@ class ImageFrame(Frame):
             if PETITE.get():
                 category_name = 'p'
                 self.canvas.itemconfig(self.temp_rect, outline='green', fill='')
-            else: 
+            else:
                 category_name = 'g'
                 self.canvas.itemconfig(self.temp_rect, outline='blue', fill='')
 
@@ -397,22 +391,37 @@ class ImageFrame(Frame):
 def num_img(data):
     return len(data['images']) if len(data['images']) > 0 else 1
 
-if __name__ == "__main__":
+
+def build_amend_GUI(input_path, output_path):
+    global MODE
+    global PETITE
+    global IMG_ID
+    global JSON_DATA
+    global MAX_SIZE
+    global PATH_TO_SAVE
+
     window = Tk()
     window.title('petiteFinder')
-    window.minsize(*MAX_SIZE)
-    window.maxsize(MAX_SIZE[0] + 200, MAX_SIZE[1] + 200)
+    window.attributes('-zoomed', 1)
 
-    data = json.load(open('results.json'))
-    
-    MODE = IntVar(window, DRAW) # Mode by default: DRAW or REMOVE
-    PETITE = IntVar(window, 1) # Petite or Grande in Draw Mode by default
-    IMG_ID = IntVar(window, 0) # IMG_ID by default
+    MAX_SIZE = (window.winfo_screenwidth(), window.winfo_screenheight())
 
-    iframe = ImageFrame(window, data)
-    bframe = ButtonsFrame(window, data, iframe)
+    JSON_DATA = json.load(open(input_path))
+
+    PATH_TO_SAVE = output_path
+
+    MODE = IntVar(window, DRAW)  # Mode by default: DRAW or REMOVE
+    PETITE = IntVar(window, 1)  # Petite or Grande in Draw Mode by default
+    IMG_ID = IntVar(window, 0)  # IMG_ID by default
+
+    iframe = ImageFrame(window, JSON_DATA)
+    bframe = ButtonsFrame(window, JSON_DATA, iframe)
 
     bframe.pack()
-    iframe.pack(fill=BOTH,expand=1)
-    
+    iframe.pack(fill=BOTH, expand=1)
+
     window.mainloop()
+
+
+if __name__ == "__main__":
+    build_amend_GUI()

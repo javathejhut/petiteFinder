@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 from settings import *
 import math
 import pandas as pd
-
+from petiteGUI import amendGUI
 
 def get_parsers():
     # top level parser
@@ -51,9 +51,9 @@ def get_parsers():
                               help="Path to json to amend through GUI.",
                               required=True, type=str)
 
-    amend_parser.add_argument("-n", "--name", dest="name", metavar="suffix",
-                              help="Suffix to append to json after amending.",
-                              required=True, type=str)
+    amend_parser.add_argument("-n", "--name", dest="name", metavar="prefix",
+                              help="Prefix to append to json after amending.",
+                              required=False, type=str, default="amended")
 
     return parser
 
@@ -221,7 +221,6 @@ def save_annotated_images(coco_dict, destination, prefix):
     folder_name = "pF_annotated_images"
     output_location = os.path.normpath(os.path.join(destination, folder_name))
 
-    textbox_width = 60
     textbox_height = 12
     rect_thickness = 4
     font_size = int(1.5 * textbox_height)
@@ -304,7 +303,10 @@ if __name__ == "__main__":
     args = top_parser.parse_args()
 
     if args.command == "amend":
-        print("amend")
+        parent_of_target = os.path.abspath(os.path.join(args.json_path, os.pardir))
+        amended_json_path = os.path.join(parent_of_target, args.name +'_' + args.json_path.split(os.sep)[-1])
+        amendGUI.build_amend_GUI(args.json_path, amended_json_path)
+
     elif args.command == "predict":
 
         if args.predict == "complete":
