@@ -350,9 +350,14 @@ class ImageFrame(Frame):
 
         if MODE.get() == REMOVE:
             for bbox in self.bboxes:
-                if is_within_box(event.x, event.y, bbox):
+                if is_within_box(event.x, event.y, bbox) and bbox not in self.selected_bboxes:
                     self.selected_bboxes.append(bbox)
                     self.canvas.itemconfig(bbox.drawn_obj, outline='red', fill='')
+
+                elif is_within_box(event.x, event.y, bbox) and bbox in self.selected_bboxes:
+                    self.selected_bboxes.remove(bbox)
+                    self.canvas.itemconfig(bbox.drawn_obj, outline='blue', fill='')
+
 
     def on_move_press(self, event):
         '''Extend the rectangle on the cursor move [only in a draw mode]'''
