@@ -346,7 +346,7 @@ class ImageFrame(Frame):
 
             # create rectangle if not yet exist
             if not self.temp_rect:
-                self.temp_rect = self.canvas.create_rectangle((self.x, self.y, 1, 1), outline='white')
+                self.temp_rect = self.canvas.create_rectangle((self.x, self.y, 1, 1), outline='white', width=4)
 
         if MODE.get() == REMOVE:
             for bbox in self.bboxes:
@@ -386,7 +386,7 @@ class ImageFrame(Frame):
         if MODE.get() == DRAW:
             if PETITE.get():
                 category_name = 'p'
-                self.canvas.itemconfig(self.temp_rect, outline='green', fill='')
+                self.canvas.itemconfig(self.temp_rect, outline='orange', fill='')
             else:
                 category_name = 'g'
                 self.canvas.itemconfig(self.temp_rect, outline='blue', fill='')
