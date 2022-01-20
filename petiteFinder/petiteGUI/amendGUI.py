@@ -356,8 +356,10 @@ class ImageFrame(Frame):
 
                 elif is_within_box(event.x, event.y, bbox) and bbox in self.selected_bboxes:
                     self.selected_bboxes.remove(bbox)
-                    self.canvas.itemconfig(bbox.drawn_obj, outline='blue', fill='')
-
+                    if bbox.category_name == 'g':
+                        self.canvas.itemconfig(bbox.drawn_obj, outline='blue', fill='')
+                    else:
+                        self.canvas.itemconfig(bbox.drawn_obj, outline='orange', fill='')
 
     def on_move_press(self, event):
         '''Extend the rectangle on the cursor move [only in a draw mode]'''
