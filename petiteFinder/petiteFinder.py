@@ -249,14 +249,14 @@ def save_annotated_images(coco_dict, destination, prefix):
                              bbox_to_rect[0] + textbox_width_temp, bbox_to_rect[1])
 
                 if ann["category_name"] == 'g':
-                    colour = 'green'
+                    colour = 'blue'
                     draw.rectangle(bbox_to_rect, outline=colour, width=rect_thickness)
                     draw.rectangle(text_rect,
                                    outline=colour, fill=colour)
                     draw.text((text_rect[0], text_rect[1]-textbox_height/4), "g:%2.2f" % ann["score"], font=font)
 
                 elif ann["category_name"] == 'p':
-                    colour = 'red'
+                    colour = 'orange'
                     draw.rectangle(bbox_to_rect, outline=colour, width=rect_thickness)
                     draw.rectangle(text_rect,
                                    outline=colour, fill=colour)

@@ -79,11 +79,11 @@ class BBox:
         self.rescaled = True
 
     def draw(self, frame):
-        color = 'green' if self.category_name == 'p' else 'blue'
+        color = 'orange' if self.category_name == 'p' else 'blue'
         if not self.rescaled:
             self.rescale(frame.ratio)
         self.drawn_obj = frame.canvas.create_rectangle(self.x_start, self.y_start, self.x_end, self.y_end,
-                                                       outline=color)
+                                                       outline=color, width=4)
 
     def remove_from_canvas(self, canvas):
         canvas.delete(self.drawn_obj)
