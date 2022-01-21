@@ -55,13 +55,16 @@ class ImageFrame(Frame):
         self.canvas.bind('<ButtonPress-3>', self.move_from)
         self.canvas.bind('<B3-Motion>', self.move_to)
 
+        # Bind events to the Canvas for hovering over
+
         self.image = Image.open(path)  # open image
         self.width, self.height = self.image.size
         self.imscale = 1.0  # scale for the canvas image
         self.delta = 1.3  # zoom magnitude
 
         # Put image into a container to be able to extract img coordinates from zoomed image
-        self.container = self.canvas.create_rectangle(0, 0, self.width, self.height, width=0, tags='container')
+        self.container = None
+        self.create_container()
 
     def create_canvas(self):
         """Crete a required canvas"""
@@ -86,6 +89,11 @@ class ImageFrame(Frame):
         self.yscroll.grid(row=0, column=1, stick=N + S)
         self.xscroll.grid(row=1, column=0, sticky=E + W)
 
+    
+    def create_container(self):
+        self.container = self.canvas.create_rectangle(0, 0, self.width, self.height, width=0, tags='container')
+        self.canvas.lower(self.container)
+
     def save_coco_annotations(self, filename='updated.json'):
         """
         Save a new COCO json file from updated annotations
@@ -104,6 +112,17 @@ class ImageFrame(Frame):
 
         with open(filename, 'w', encoding='utf-8') as f:
             json.dump(self.updated_data, f, ensure_ascii=False, indent=4)
+
+    def bbox_hover_event(self, event):
+        '''
+        Show bbox info when the cursor is hovering over it:
+        '''
+        bbox_id = event.widget.find_withtag('current')[0]
+        for bbox in self.bboxes:
+            if bbox.drawn_obj == bbox_id:
+                text = 'Category: {}\nScore: {}'.format(bbox.category_name, round(bbox.score, 2))
+                BBOX_INFO.set(text)
+
 
     def on_button_press(self, event):
         '''
@@ -296,7 +315,6 @@ class ImageFrame(Frame):
             bbox.draw(self)
 
     def save_annotation_state(self):
-
         self.annotations[IMG_ID.get()] = [bbox.convert_to_ann() for bbox in self.bboxes]
 
     def delete_canvas_annotations(self):
@@ -324,14 +342,20 @@ class ButtonsFrame(Frame):
         Frame.__init__(self, master=None)
         self.iframe = iframe
 
-        self.leftButton = Button(self, command=self.leftButtonClick, text="<")
-        self.rightButton = Button(self, command=self.rightButtonClick, text=">")
-        self.saveButton = Button(self, command=self.saveButtonClick, text="Save")
-        self.remButton = Button(self, command=self.remButtonClick, text="Remove Mode")
-        self.drawButton = Button(self, command=self.drawButtonClick, text="Draw Mode")
+        self.navFrame = Frame(self)
+        self.leftButton = Button(self.navFrame, command=self.leftButtonClick, text="<")
+        self.rightButton = Button(self.navFrame, command=self.rightButtonClick, text=">")
+        
+        self.modFrame = Frame(self)
+        self.remButton = Button(self.modFrame, command=self.remButtonClick, text="Remove Mode")
+        self.drawButton = Button(self.modFrame, command=self.drawButtonClick, text="Draw Mode")
+
+        self.categFrame = Frame(self)
+        self.petButton = Button(self.categFrame, command=self.petButtonClick, text="Petite")
+        self.grandButton = Button(self.categFrame, command=self.grandButtonClick, text="Grande")
+
         self.delSelButton = Button(self, command=self.delSelButtonClick, text="Delete selected", state='disabled')
-        self.petButton = Button(self, command=self.petButtonClick, text="Petite")
-        self.grandButton = Button(self, command=self.grandButtonClick, text="Grande")
+        self.saveButton = Button(self, command=self.saveButtonClick, text="Save")
 
         self.master.bind("<Key>", self.keyHandler)
 
@@ -341,20 +365,34 @@ class ButtonsFrame(Frame):
         self.imgid_text = StringVar(self, str(IMG_ID.get()))
 
         self.modeLabel = Label(self, textvariable=self.mode_text)
-        self.imgidLabel = Label(self, textvariable=self.imgid_text)
+        self.imgidLabel = Label(self.navFrame, textvariable=self.imgid_text)
         self.classLabel = Label(self, textvariable=self.class_text)
+        self.bboxLabel = Label(self, textvariable=BBOX_INFO)
 
-        self.leftButton.pack(fill=Y, side=LEFT)
-        self.imgidLabel.pack(fill=Y, side=LEFT)
-        self.rightButton.pack(fill=Y, side=LEFT)
-        self.saveButton.pack(fill=Y, side=LEFT)
-        self.remButton.pack(fill=Y, side=LEFT)
-        self.drawButton.pack(fill=Y, side=LEFT)
-        self.delSelButton.pack(fill=Y, side=LEFT)
-        self.petButton.pack(fill=Y, side=LEFT)
-        self.grandButton.pack(fill=Y, side=LEFT)
-        self.modeLabel.pack(fill=Y, side=LEFT, padx=(10, 10), pady=(10, 10))
-        self.classLabel.pack(fill=Y, side=LEFT, padx=(10, 10), pady=(10, 10))
+        padx = (10,10)
+        pady = (2,2)
+
+        self.navFrame.grid(rowspan=2, column=0, row=0)
+        self.leftButton.pack(fill=Y, side=LEFT, padx=(10,0))
+        self.imgidLabel.pack(fill=Y, side=LEFT, pady=pady)
+        self.rightButton.pack(fill=Y, side=LEFT, padx=(0, 10))
+
+        self.modFrame.grid(column=1, row=0, rowspan=2)
+        self.drawButton.pack(fill=X, padx=padx, pady=pady)
+        self.remButton.pack(fill=X, padx=padx, pady=pady)
+
+        self.categFrame.grid(column=2, row=0, rowspan=2)
+        self.petButton.pack(fill=X, padx=padx, pady=pady)
+        self.grandButton.pack(fill=X, padx=padx, pady=pady)
+        
+        self.modeLabel.grid(column=3, row=0, padx=padx, pady=pady)
+        self.classLabel.grid(column=3, row=1, padx=padx, pady=pady)
+        
+        self.delSelButton.grid(column=4, row=0, padx=padx, pady=pady, rowspan=2)
+        self.saveButton.grid(column=5, row=0, padx=padx, pady=pady, rowspan=2)
+
+        self.bboxLabel.grid(column=6, row=0, padx=padx, pady=pady, rowspan=2)
+        
 
     def update_text(self):
         self.mode_text.set("Draw mode" if MODE.get() == DRAW else "Remove mode")
@@ -388,8 +426,8 @@ class ButtonsFrame(Frame):
             self.iframe.draw_complete_img()
             self.iframe.draw_ann()
             self.iframe.canvas.delete('container')
-            self.iframe.container = self.iframe.canvas.create_rectangle(0, 0, self.iframe.width, self.iframe.height,
-                                                                        width=0, tags='container')
+            self.iframe.create_container()
+
 
     def rightButtonClick(self):
         self.iframe.save_annotation_state()
@@ -404,8 +442,7 @@ class ButtonsFrame(Frame):
             self.iframe.draw_complete_img()
             self.iframe.draw_ann()
             self.iframe.canvas.delete('container')
-            self.iframe.container = self.iframe.canvas.create_rectangle(0, 0, self.iframe.width, self.iframe.height,
-                                                                        width=0, tags='container')
+            self.iframe.create_container()
 
     def remButtonClick(self):
         MODE.set(REMOVE)
@@ -520,6 +557,9 @@ class BBox:
 
         self.drawn_obj = frame.canvas.create_rectangle(self.x_start, self.y_start, self.x_end, self.y_end,
                                                        outline=color, width=4, tags='annotation_bbox')
+        frame.canvas.lift(self.drawn_obj)
+        frame.canvas.tag_bind(self.drawn_obj, '<Enter>', frame.bbox_hover_event)
+        #frame.canvas.tag_bind(self.drawn_obj, '<Leave>', frame.bbox_unhover_event)
 
     def remove_from_canvas(self, canvas):
         canvas.delete(self.drawn_obj)
@@ -549,17 +589,23 @@ DRAW = 1
 path = 'p3_1_2_b.png'  # place path to your image here
 root = tk.Tk()
 root.title('petiteFinder')
-root.attributes('-zoomed', 1)
+
+# handle UNIX/WINDOWS/OSX window handling differences
+try:
+    root.state('zoomed')
+except _tkinter.TclError:
+    root.attributes('-zoomed', 1)
 
 MODE = IntVar(root, DRAW)  # Mode by default: DRAW or REMOVE
 PETITE = IntVar(root, 1)  # Petite or Grande in Draw Mode by default
 IMG_ID = IntVar(root, 0)  # IMG_ID by default
+BBOX_INFO = StringVar(root, '') # bbox to show by default in info
 
 # MAX_SIZE = (root.winfo_screenwidth(), root.winfo_screenheight())
 iframe = ImageFrame(root, path, JSON_DATA)
 bframe = ButtonsFrame(root, JSON_DATA, iframe)
 
-bframe.pack()
+bframe.pack(fill=X)
 iframe.pack(fill=BOTH, expand=1)
 
 root.mainloop()
