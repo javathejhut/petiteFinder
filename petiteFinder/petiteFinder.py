@@ -9,6 +9,7 @@ import math
 import pandas as pd
 from petiteGUI import amendGUI
 
+
 def get_parsers():
     # top level parser
     parser = argparse.ArgumentParser(description="Run petiteFinder, an automated yeast Petite frequency"
@@ -34,12 +35,11 @@ def get_parsers():
 
     predict_parser.add_argument("-p", "--predict", dest="predict", metavar="complete",
                                 help="Enter the prediction mode. Choices are 'complete', 'frequency_only',"
-                                     "'json_only', 'visualize_only', 'live_visualize'.",
+                                     "'json_only', 'visualize_only'.",
                                 type=str, required=False, default='complete', choices=["complete",
                                                                                        "frequency_only",
                                                                                        "json_only",
-                                                                                       "visualize_only",
-                                                                                       "live_visualize"])
+                                                                                       "visualize_only"])
 
     predict_parser.add_argument("-n", "--name", dest="name", metavar="prefix",
                                 help="Prefix of json annotation/csv frequency file.",
@@ -193,6 +193,12 @@ def save_coco_json(destination, prefix, images=None, annotations=None, licenses=
                    'info': info}, coco_output, indent=2, sort_keys=True)
 
 
+def load_coco_json(target_dir):
+    with open(target_dir) as json_file:
+        data = json.load(json_file)
+    return data
+
+
 def save_freq_csv(coco_dict, destination, prefix):
     cat_dicts = [get_category_count_per_img(coco_dict, 'g'), get_category_count_per_img(coco_dict, 'p')]
 
@@ -253,14 +259,14 @@ def save_annotated_images(coco_dict, destination, prefix):
                     draw.rectangle(bbox_to_rect, outline=colour, width=rect_thickness)
                     draw.rectangle(text_rect,
                                    outline=colour, fill=colour)
-                    draw.text((text_rect[0], text_rect[1]-textbox_height/4), "g:%2.2f" % ann["score"], font=font)
+                    draw.text((text_rect[0], text_rect[1] - textbox_height / 4), "g:%2.2f" % ann["score"], font=font)
 
                 elif ann["category_name"] == 'p':
                     colour = 'orange'
                     draw.rectangle(bbox_to_rect, outline=colour, width=rect_thickness)
                     draw.rectangle(text_rect,
                                    outline=colour, fill=colour)
-                    draw.text((text_rect[0], text_rect[1]-textbox_height/4), "p:%2.2f" % ann["score"], font=font)
+                    draw.text((text_rect[0], text_rect[1] - textbox_height / 4), "p:%2.2f" % ann["score"], font=font)
 
         im_copy.save(os.path.normpath(os.path.join(output_location, prefix + '_annotated_' + file_name)))
 
@@ -304,10 +310,16 @@ if __name__ == "__main__":
 
     if args.command == "amend":
         parent_of_target = os.path.abspath(os.path.join(args.json_path, os.pardir))
-        amended_json_path = os.path.join(parent_of_target, args.name +'_' + args.json_path.split(os.sep)[-1])
+        amended_json_path = os.path.join(parent_of_target, args.name + '_' + args.json_path.split(os.sep)[-1])
         amendGUI.build_amend_GUI(args.json_path, amended_json_path)
+        print("also exporting amended csv...")
+        coco_amend_dict = load_coco_json(amended_json_path)
+        save_freq_csv(coco_dict=coco_amend_dict, destination=parent_of_target, prefix=args.name)
 
     elif args.command == "predict":
+
+        if not os.path.exists(args.output_path):
+            os.mkdir(args.output_path)
 
         if args.predict == "complete":
             coco_prediction_dict = perform_inference_coco(args.input_path, args.device)
@@ -331,7 +343,4 @@ if __name__ == "__main__":
             coco_prediction_dict = perform_inference_coco(args.input_path, args.device)
             save_annotated_images(coco_dict=coco_prediction_dict, destination=args.output_path, prefix=args.name)
 
-        elif args.predict == "live_visualize":
-            coco_prediction_dict = perform_inference_coco(args.input_path, args.device)
-            # save_annotated_images(args.output_path)
-            # live_visualization(args.output_path)
+
