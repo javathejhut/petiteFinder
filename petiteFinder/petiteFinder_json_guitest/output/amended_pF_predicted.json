@@ -2023,6 +2023,21 @@
             "segmentation": [],
             "category_name": "g",
             "category_id": 0,
+            "score": 0.9972416162490845,
+            "image_id": 2,
+            "bbox": [
+                871,
+                180,
+                65,
+                60
+            ],
+            "area": 3900
+        },
+        {
+            "iscrowd": 0,
+            "segmentation": [],
+            "category_name": "g",
+            "category_id": 0,
             "score": 0.9972075819969177,
             "image_id": 2,
             "bbox": [
@@ -2317,6 +2332,21 @@
                 48
             ],
             "area": 2208
+        },
+        {
+            "iscrowd": 0,
+            "segmentation": [],
+            "category_name": "g",
+            "category_id": 0,
+            "score": 0.9925643801689148,
+            "image_id": 2,
+            "bbox": [
+                1006,
+                118,
+                57,
+                57
+            ],
+            "area": 3249
         },
         {
             "iscrowd": 0,

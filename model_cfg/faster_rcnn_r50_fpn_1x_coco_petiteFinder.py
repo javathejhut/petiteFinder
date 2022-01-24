@@ -101,20 +101,25 @@ model = dict(
             score_thr=0.05,
             nms=dict(type='nms', iou_threshold=0.5),
             max_per_img=100)))
-dataset_type = 'COCODataset'
-data_root = 'data/coco/'
+
+dataset_type = 'CocoDataset'
+data_root = '/home/groot/mmDetection/COCO_dataset_sliced/'
+classes = ('g', 'p')
+
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+
+img_scale = (1024, 1024)
+
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='Resize', img_scale=(1333, 800), keep_ratio=True),
+    # dict(type='Resize', img_scale=img_scale, keep_ratio=True, multiscale_mode="value"),
+    dict(type='Resize', img_scale=img_scale, keep_ratio=True),
     dict(type='RandomFlip', flip_ratio=0.5),
-    dict(
-        type='Normalize',
-        mean=[123.675, 116.28, 103.53],
-        std=[58.395, 57.12, 57.375],
-        to_rgb=True),
+    dict(type='RandomCrop', crop_type="relative_range", crop_size=(0.8, 0.8)),
+    dict(type='PhotoMetricDistortion'),
+    dict(type='Normalize', **img_norm_cfg),
     dict(type='Pad', size_divisor=32),
     dict(type='DefaultFormatBundle'),
     dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
@@ -123,115 +128,78 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(1333, 800),
+        img_scale=img_scale,
         flip=False,
         transforms=[
+            # dict(type='Resize', keep_ratio=True, multiscale_mode="value"),
             dict(type='Resize', keep_ratio=True),
             dict(type='RandomFlip'),
-            dict(
-                type='Normalize',
-                mean=[123.675, 116.28, 103.53],
-                std=[58.395, 57.12, 57.375],
-                to_rgb=True),
+            # dict(type='RandomCrop', crop_type="relative_range", crop_size=(0.9,0.9)),
+            # dict(type='PhotoMetricDistortion'),
+            dict(type='Normalize', **img_norm_cfg),
             dict(type='Pad', size_divisor=32),
-            dict(type='ImageToTensor', keys=['img']),
+            # dict(type='ImageToTensor', keys=['img']),
+            dict(type='DefaultFormatBundle'),
             dict(type='Collect', keys=['img'])
         ])
 ]
+
 data = dict(
     samples_per_gpu=2,
     workers_per_gpu=2,
+
     train=dict(
-        type='CocoDataset',
-        ann_file=
-        '/home/groot/mmDetection/runs/slice_coco_train/512_02/train_sliced_512.json',
-        img_prefix=
-        '/home/groot/mmDetection/runs/slice_coco_train/512_02/train_sliced_images_512/',
-        pipeline=[
-            dict(type='LoadImageFromFile'),
-            dict(type='LoadAnnotations', with_bbox=True),
-            dict(type='Resize', img_scale=(1333, 800), keep_ratio=True),
-            dict(type='RandomFlip', flip_ratio=0.5),
-            dict(
-                type='Normalize',
-                mean=[123.675, 116.28, 103.53],
-                std=[58.395, 57.12, 57.375],
-                to_rgb=True),
-            dict(type='Pad', size_divisor=32),
-            dict(type='DefaultFormatBundle'),
-            dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
-        ],
-        classes=('g', 'p')),
+        type=dataset_type,
+        ann_file=data_root + 'slice_coco_train/512_02/train_sliced_512.json',
+        img_prefix=data_root + 'slice_coco_train/512_02/train_sliced_images_512/',
+        pipeline=train_pipeline,
+        classes=classes),
+
     val=dict(
-        type='CocoDataset',
-        ann_file=
-        '/home/groot/mmDetection/runs/slice_coco_validate/512_02/validate_sliced_512.json',
-        img_prefix=
-        '/home/groot/mmDetection/runs/slice_coco_validate/512_02/validate_sliced_images_512/',
-        pipeline=[
-            dict(type='LoadImageFromFile'),
-            dict(
-                type='MultiScaleFlipAug',
-                img_scale=(1333, 800),
-                flip=True,
-                transforms=[
-                    dict(type='Resize', keep_ratio=True),
-                    dict(type='RandomFlip'),
-                    dict(
-                        type='Normalize',
-                        mean=[123.675, 116.28, 103.53],
-                        std=[58.395, 57.12, 57.375],
-                        to_rgb=True),
-                    dict(type='Pad', size_divisor=32),
-                    dict(type='ImageToTensor', keys=['img']),
-                    dict(type='Collect', keys=['img'])
-                ])
-        ],
-        classes=('g', 'p')),
+        type=dataset_type,
+        ann_file=data_root + 'slice_coco_validate/512_02/validate_sliced_512.json',
+        img_prefix=data_root + 'slice_coco_validate/512_02/validate_sliced_images_512/',
+        pipeline=test_pipeline,
+        classes=classes),
+
     test=dict(
-        type='CocoDataset',
-        ann_file=
-        '/home/groot/mmDetection/runs/slice_coco_test/512_02/test_sliced_512.json',
-        img_prefix=
-        '/home/groot/mmDetection/runs/slice_coco_test/512_02/test_sliced_images_512/',
-        pipeline=[
-            dict(type='LoadImageFromFile'),
-            dict(
-                type='MultiScaleFlipAug',
-                img_scale=(1333, 800),
-                flip=True,
-                transforms=[
-                    dict(type='Resize', keep_ratio=True),
-                    dict(type='RandomFlip'),
-                    dict(
-                        type='Normalize',
-                        mean=[123.675, 116.28, 103.53],
-                        std=[58.395, 57.12, 57.375],
-                        to_rgb=True),
-                    dict(type='Pad', size_divisor=32),
-                    dict(type='ImageToTensor', keys=['img']),
-                    dict(type='Collect', keys=['img'])
-                ])
-        ],
-        classes=('g', 'p')))
+        type=dataset_type,
+        ann_file=data_root + 'slice_coco_test/512_02/test_sliced_512.json',
+        img_prefix=data_root + 'slice_coco_test/512_02/test_sliced_images_512/',
+        pipeline=test_pipeline,
+        classes=classes)
+)
+
 evaluation = dict(interval=1, metric='bbox')
+
 optimizer = dict(type='SGD', lr=0.001, momentum=0.9, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=None)
+
 lr_config = dict(
     policy='step',
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=0.001,
     step=[8, 11])
-runner = dict(type='EpochBasedRunner', max_epochs=18)
+
+runner = dict(type='EpochBasedRunner', max_epochs=30)
 checkpoint_config = dict(interval=1)
-log_config = dict(interval=50, hooks=[dict(type='TextLoggerHook')])
+
 custom_hooks = [dict(type='NumClassCheckHook')]
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
 load_from = '/home/groot/mmDetection/checkpoints/faster_rcnn_r50_fpn_1x_coco_20200130-047c8118.pth'
 resume_from = None
 workflow = [('train', 1), ('val', 1)]
-classes = ('g', 'p')
-work_dir = '/media/groot/HDD_storage/work_dirs/faster_rcnn_r50_fpn_1x_coco_petiteFinder_0.001_0.9'
+
 gpu_ids = range(0, 1)
+
+project_name = 'petiteFinder'
+
+name = 'exp_1024px_8anchor_linear_distortions_crop-0.8'
+work_dir = '/media/klyshko/HDD/ML_runs/{}/{}'.format(project_name, name)
+
+log_config = dict(
+    interval=50,
+    hooks=[dict(type='TextLoggerHook'), dict(type='WandbLoggerHook', init_kwargs=dict(project=project_name, name=name))]
+)

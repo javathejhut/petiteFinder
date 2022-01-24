@@ -6,7 +6,7 @@ Leave default unless doing invasive tuning for your images.
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.getcwd() + os.sep, os.pardir))
 MODEL_PATH = os.path.normpath(PROJECT_ROOT + "/model_weights/1024px_epoch_17.pth")
-MODEL_CONFIG_PATH = os.path.normpath(PROJECT_ROOT + "/model_cfg/faster_rcnn_r50_fpn_1x_coco_petiteFinder_wdb_chris.py")
+MODEL_CONFIG_PATH = os.path.normpath(PROJECT_ROOT + "/model_cfg/faster_rcnn_r50_fpn_1x_coco_petiteFinder.py")
 TRAINED_IMAGE_WIDTH = 2376
 TRAINED_IMAGE_HEIGHT = 2288
 TRAINED_SLICE_HEIGHT = 512

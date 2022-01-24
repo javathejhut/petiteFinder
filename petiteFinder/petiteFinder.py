@@ -159,7 +159,8 @@ def perform_inference_coco(target, model_device):
                                             overlap_width_ratio=OVERLAP_WIDTH_RATIO, perform_standard_pred=False,
                                             postprocess_type=POST_PROCESS_TYPE,
                                             postprocess_match_metric=POST_PROCESS_METRIC,
-                                            postprocess_match_threshold=POST_PROCESS_MATCH_THRESHOLD, verbose=1)
+                                            postprocess_match_threshold=POST_PROCESS_MATCH_THRESHOLD, verbose=0)
+        print("Performed prediction on image {}.".format(img_id))
 
         # get SAHI prediction json list
         coco_annotations = []

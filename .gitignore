@@ -12,3 +12,4 @@ COCO_dataset_sliced/
 model_weights/
 build/
 wandb/
+__pycache__/

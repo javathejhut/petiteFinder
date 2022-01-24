@@ -288,7 +288,6 @@ class ImageFrame(Frame):
         """ shrink image/canvas to fit screen upon opening/changing images"""
 
         self.imscale = self.compute_optimal_scaling()
-        print(self.canvas.winfo_width() / 2)
         self.canvas.scale('all', self.canvas.winfo_screenwidth() / 2, 0, self.imscale, self.imscale)
         self.draw_crop_image()
 
