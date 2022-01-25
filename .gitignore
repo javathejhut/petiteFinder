@@ -8,7 +8,6 @@ testing_without_slicing.txt
 .ipynb_checkpoints
 .idea
 COCO_dataset_sliced/
-model_weights/
 build/
 wandb/
 __pycache__/
