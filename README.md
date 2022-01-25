@@ -10,7 +10,7 @@ An automated tool to compute Petite colony frequencies in baker's yeast
 
 ## Overview
 
-Here goes the motiovation for the tool.
+Here goes the motivation for the tool.
 
 ### Demo
 
@@ -57,7 +57,7 @@ pip install openmim
 mim install mmdet
 ```
 
-- Install `tkiner` for GUI interface (in case it's not installed on your system):
+- Install `tkiner` for GUI interface (in case it is not installed on your system):
 
 ```console
 conda install -c anaconda tk
@@ -104,30 +104,41 @@ conda install -c anaconda tk
 </details>
 
 
+### Standard Command Line Usage
 
-### Standard command line usage
-
-To run the colony detection model on a folder with images use `predict` command:
-- Provide a path to folder with images with a `-i` flag,
-- Specify to what level of details you want the results with a `-p` flag. Choces are `complete`, `frequency_only`, `json_only`, `visualize_only`
-- Provide a path to an output folder where to write down results (annotations, petite colonies frequency, annotated images, etc)
+To run the colony detection model on a folder with images use the `predict` command:
+- Provide a path to folder with images with a `-i` flag.
+- Specify to what level of details you want the results with a `-p` flag. Choices are `complete`, `frequency_only`, `json_only`, `visualize_only`. 
+- Provide a path to an output folder where to save the results (annotations, petite colonies frequency, annotated images, etc.)
 
 Example:
 ```
 python petiteFinder.py predict -i ./demo/input_images/ -o ./demo/output/ -p complete 
 ```
 
-### Interactive Visualization & Inspection 
-To visualize the resulting annotations and interactively modify them use `amend` command:
-- Provide a path to a resulting `.json` file with `-i` flag
+### Interactive Visualization & Inspection
+
+To visualize the resulting annotations and interactively modify them use the `amend` command:
+
+- Provide a path to a resulting annotation `.json` file with `-i` flag. The annotation file contains the path to each image that will be opened.
+
 Example:
 ```
 python petiteFinder.py amend -i ./demo/output/pF_predicted.json
 ```
 This will open a tkinter window:
-<img src="/demo/GUI.png" width=500px>
-![petiteFinder GUI](/demo/GUI.png) 
 
+<img align="center" src="/demo/GUI.png" width=500px>
+
+- Navigate an image folder with `<` and `>` buttons and chose an image to visualize. Zoom in and out relative to the cursor with a mouse wheel or by pressing `<i>` and `<o>` keys. There are two GUI modes that can be chosen with the corresponding buttons: `Draw Mode` and `Remove Mode`, or by pressing `<d>` or `<r>` keys, respectively. 
+
+- Hover over the bounding box to see the additional information  in the upper right corner, such as category (`p` - Petite, `g` - Grande) and `Score` (the confidence provided by the model in the range from 0 to 1.
+
+- In the `Draw mode`, chose a category of the colony you want to annotate with a bounding box (in case it was not detected by the model) by `Petite` and `Grande` buttons, or alternatively, by pressing `<p>` or `<g>` keys. Draw a bounding box around the object by moving a mouse after pressing and holding the left mouse button.
+
+- In the `Remove mode`, click on the bounding boxes you want to remove (they will light up red) and then press `Delete selected` button or `<BackSpace>`/`<Delete>`keys to clear them of the image. 
+
+- Press `Save` button to save amended annotations to the `ammended_*.json` file. 
 
 
 ## <div align="center">Citation</div>
@@ -144,9 +155,7 @@ If you use this software in your research, please cite it as:
 
 ## Contributors
 
- - <a align="left" href="https://github.com/javathejhut" target="_blank">Chris Nunn</a>
- - <a align="left" href="https://github.com/klyshko" target="_blank">Eugene Klyshko</a>
-
-
+ - <a align="left" href="https://github.com/javathejhut">Chris Nunn</a>
+ - <a align="left" href="https://github.com/klyshko">Eugene Klyshko</a>
 
 
