@@ -5,7 +5,9 @@ currently:
 
 petiteFinder.py
 
+## Demo
 
+![petiteFinder demo](demo/showcase.gif)
 
 
 
