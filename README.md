@@ -7,30 +7,15 @@
   An automated tool to compute Petite colony frequencies in baker's yeast
 </h4>
 
-<h4>
-    <img width="700" alt="teaser" src="">
-</h4>
-
-
 </div>
 
 ## <div align="center">Overview</div>
 
 Here goes the motiovation for the tool.
 
-| Command  | Description  |
-|---|---|
-| [predict](https://google.com)  | perform sliced/standard prediction using any [yolov5](https://github.com/ultralytics/yolov5)/[mmdet](https://github.com/open-mmlab/mmdetection)/[detectron2](https://github.com/facebookresearch/detectron2) model |
-| [amend](https://google.com)  | perform sliced/standard prediction using any [yolov5](https://github.com/ultralytics/yolov5)/[mmdet](https://github.com/open-mmlab/mmdetection)/[detectron2](https://github.com/facebookresearch/detectron2) model and explore results in [fiftyone app](https://github.com/voxel51/fiftyone) |
-| [coco slice](https://github.com/obss/sahi/blob/main/docs/cli.md#coco-slice-command-usage)  | automatically slice COCO annotation and image files |
-| [coco evaluate](https://github.com/obss/sahi/blob/main/docs/cli.md#coco-evaluate-command-usage)  | evaluate classwise COCO AP and AR for given predictions and ground truth |
-
-## <div align="center">Quick Start Examples</div>
-
 ### Demo
 
 ![petiteFinder demo](demo/showcase.gif)
-
 
 
 ### Installation
@@ -40,7 +25,7 @@ a CV library for large scale object detection via slicing called [SAHI](https://
 
 <details closed>
 <summary>
-<big><b>Installation details (systems with CUDA devices):</b></big>
+<big><b>Details for systems with CUDA devices:</b></big>
 </summary>
 
 - Create and activate a new `conda` environment:
@@ -84,7 +69,7 @@ conda install pandas pillow
 
 <details closed>
 <summary>
-<big><b>Installation details (systems with CPU only):</b></big>
+<big><b>Details for systems with CPU only:</b></big>
 </summary>
 
 - Create and activate a new `conda` environment:
@@ -123,8 +108,9 @@ conda install -c anaconda tk
 ```console
 conda install pandas pillow
 ```
-
 </details>
+
+
 
 ### Standard command line usage
 
@@ -150,13 +136,11 @@ If you use this package in your work, please cite it as:
 }
 ```
 
-## <div align="center">Contributors</div>
+## Contributors
 
-<div align="center">
-  <a align="left" href="https://github.com/javathejhut" target="_blank">Chris Nunn</a>
-  <a align="left" href="https://github.com/klyshko" target="_blank">Eugene Klyshko</a>
+ - <a align="left" href="https://github.com/javathejhut" target="_blank">Chris Nunn</a>
+ - <a align="left" href="https://github.com/klyshko" target="_blank">Eugene Klyshko</a>
 
-</div>
 
 
 
