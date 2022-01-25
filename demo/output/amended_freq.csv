@@ -1,0 +1,4 @@
+filename,grande_count,petite_count,percent_petite,total_count
+./demo/input_images/p3_1_2_b.png,42,53,0.5578947368421052,95
+./demo/input_images/1_HD_colour_4.png,19,1,0.05,20
+./demo/input_images/p5_2_3_a.png,42,38,0.475,80

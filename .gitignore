@@ -7,7 +7,6 @@ log_analysis.txt
 testing_without_slicing.txt
 .ipynb_checkpoints
 .idea
-COCO_dataset/
 COCO_dataset_sliced/
 model_weights/
 build/
