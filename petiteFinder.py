@@ -160,7 +160,7 @@ def perform_inference_coco(target, model_device):
                                             postprocess_type=POST_PROCESS_TYPE,
                                             postprocess_match_metric=POST_PROCESS_METRIC,
                                             postprocess_match_threshold=POST_PROCESS_MATCH_THRESHOLD, verbose=0)
-        print("Performed prediction on image {}.".format(img_id))
+        print("Performed prediction on image {}: {}.".format(img_id, img.split(os.sep)[-1]))
 
         # get SAHI prediction json list
         coco_annotations = []
@@ -232,7 +232,8 @@ def save_annotated_images(coco_dict, destination, prefix):
     rect_thickness = 4
     font_size = int(1.5 * textbox_height)
 
-    font = ImageFont.truetype(os.path.join(os.path.join(PROJECT_ROOT, "config"+os.sep+"fonts"), "FreeMono.ttf"), size=font_size)
+    font = ImageFont.truetype(os.path.join(os.path.join(PROJECT_ROOT, "config" + os.sep + "fonts"), "FreeMono.ttf"),
+                              size=font_size)
     if not os.path.exists(output_location):
         os.makedirs(output_location)
 
@@ -343,5 +344,3 @@ if __name__ == "__main__":
         elif args.predict == "visualize_only":
             coco_prediction_dict = perform_inference_coco(args.input_path, args.device)
             save_annotated_images(coco_dict=coco_prediction_dict, destination=args.output_path, prefix=args.name)
-
-

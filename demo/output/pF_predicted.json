@@ -2944,19 +2944,19 @@
   "categories": [],
   "images": [
     {
-      "file_name": "./demo/input_images/p3_1_2_b.png",
+      "file_name": "demo/input_images/p3_1_2_b.png",
       "height": 2288,
       "id": 0,
       "width": 2376
     },
     {
-      "file_name": "./demo/input_images/1_HD_colour_4.png",
+      "file_name": "demo/input_images/1_HD_colour_4.png",
       "height": 2288,
       "id": 1,
       "width": 2376
     },
     {
-      "file_name": "./demo/input_images/p5_2_3_a.png",
+      "file_name": "demo/input_images/p5_2_3_a.png",
       "height": 2288,
       "id": 2,
       "width": 2376
