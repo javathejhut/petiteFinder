@@ -20,7 +20,7 @@ Here goes the motivation for the tool.
 ### Installation
 
 The colony detection module of PetiteFinder was build on an open-source image detection toolbox [MMDetection](https://github.com/open-mmlab/mmdetection) and 
-a CV library for large scale object detection via slicing called [SAHI](https://github.com/obss/sahi). The GUI module was designed with [tkinter](https://docs.python.org/3/library/tkinter.html) python library.
+a CV library for large scale object detection via slicing called [SAHI](https://github.com/obss/sahi). The GUI module was designed with the [tkinter](https://docs.python.org/3/library/tkinter.html) python library.
 
 - Clone the repo:
 ```console
@@ -108,8 +108,8 @@ conda install -c anaconda tk
 
 To run the colony detection model on a folder with images use the `predict` command:
 - Provide a path to folder with images with a `-i` flag.
-- Provide an output directory with `-o` flag. This is the directory where all results are saved (annotations, petite colonies frequency, annotated images, etc.)
-- Specify a compute device with `-d` flag. Choices are `cpu` and `gpu`.
+- Provide an output directory with a `-o` flag. This is the directory where all results are saved (annotations, petite colonies frequency CSV, annotated images).
+- Specify a compute device with a `-d` flag. Choices are `cpu` and `gpu`.
 - Specify to what level of details you want the results with a `-p` flag. Choices are `complete`, `frequency_only`, `json_only`, `visualize_only`. 
 - For more details, access help by running `python petiteFinder.py predict -h`.
 
@@ -141,7 +141,7 @@ This will open a tkinter window:
 
 - In the `Remove mode`, click on the bounding boxes you want to remove (they will light up red) and then press `Delete selected` button or `<BackSpace>`/`<Delete>`keys to clear them of the image. 
 
-- Press `Save` button to save amended annotations to the `ammended_*.json` file. 
+- Press `Save` button to save amended annotations to the `amended_*.json` file. 
 
 
 ## <div align="center">Citation</div>
