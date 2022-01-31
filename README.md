@@ -160,7 +160,7 @@ This will open a tkinter window:
 - Press `Save` button to save amended annotations to the `amended_*.json` file. 
 
 
-## <div align="center">Citation</div>
+## Citation
 
 If you use this software in your research, please cite it as:
 
