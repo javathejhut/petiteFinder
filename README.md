@@ -14,16 +14,19 @@ Here goes the motivation for the tool.
 
 ## Demo
 
-![petiteFinder demo](demo/showcase.gif)
+<img align="center" src="/demo/showcase.gif" width=1000px alt="petiteFinder Demo">
 
 <details closed>
 <summary>
 <big><b>Under the hood:</b></big>
 </summary>
   
-- Faster-RCNN detector [bounding box + class + score] coupled with a feature pyramid network (FPN) based on the ResNet50 backbone.
-- Sliced inference, i.e. performing inference over smaller slices of the original image and then merging them together with greedy non-maximal merging (NMM) algorithm.
-  <img align="center" src="/demo/scheme.png" width=500px>
+- Faster-RCNN detector (predicting bounding box + class + score), coupled with a feature pyramid network (FPN) based on the ResNet50 backbone.
+  
+- Sliced inference, i.e. detecting objects on the smaller slices of the original image and then merging them together with greedy non-maximal merging (NMM) algorithm.
+  
+  <img align="center" src="/demo/scheme.png" width=600px>
+
 </details>
 
 
