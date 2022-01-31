@@ -12,12 +12,22 @@ An automated tool to compute Petite colony frequencies in baker's yeast
 
 Here goes the motivation for the tool.
 
-### Demo
+## Demo
 
 ![petiteFinder demo](demo/showcase.gif)
 
+<details closed>
+<summary>
+<big><b>Under the hood:</b></big>
+</summary>
+  
+- Faster-RCNN detector [bounding box + class + score] coupled with a feature pyramid network (FPN) based on the ResNet50 backbone.
+- Sliced inference, i.e. performing inference over smaller slices of the original image and then merging them together with greedy non-maximal merging (NMM) algorithm.
+  <img align="center" src="/demo/scheme.png" width=500px>
+</details>
 
-### Installation
+
+## Installation
 
 The colony detection module of PetiteFinder was build on an open-source image detection toolbox [MMDetection](https://github.com/open-mmlab/mmdetection) and 
 a CV library for large scale object detection via slicing called [SAHI](https://github.com/obss/sahi). The GUI module was designed with the [tkinter](https://docs.python.org/3/library/tkinter.html) python library.
@@ -104,7 +114,7 @@ conda install -c anaconda tk
 </details>
 
 
-### Standard Command Line Usage
+## 1. Standard Command Line Usage
 
 To run the colony detection model on a folder with images use the `predict` command:
 - Provide a path to folder with images with a `-i` flag.
@@ -118,7 +128,7 @@ Example:
 python petiteFinder.py predict -d gpu -i ./demo/input_images/ -o ./demo/output/ -p complete 
 ```
 
-### Interactive Visualization & Inspection
+## 2. Interactive Visualization & Inspection
 
 To visualize the resulting annotations and interactively modify them use the `amend` command:
 
