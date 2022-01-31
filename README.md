@@ -25,7 +25,7 @@ Here goes the motivation for the tool.
   
 - Sliced inference, i.e. detecting objects on the smaller slices of the original image and then merging them together with greedy non-maximal merging (NMM) algorithm.
   
-  <img align="center" src="/demo/scheme.png" width=600px>
+  <img align="center" src="/demo/scheme.png" width=700px>
 
 </details>
 
