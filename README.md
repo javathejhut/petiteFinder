@@ -8,9 +8,10 @@ An automated tool to compute Petite colony frequencies in baker's yeast
 
 </div>
 
-## Overview
+## Motivation
 
 Here goes the motivation for the tool.
+Details: 
 
 ## Demo
 
@@ -21,9 +22,11 @@ Here goes the motivation for the tool.
 <big><b>Under the hood:</b></big>
 </summary>
   
-- Faster-RCNN detector (predicting bounding box + class + score), coupled with a feature pyramid network (FPN) based on the ResNet50 backbone.
+- The trained and optimized Faster-RCNN detector (predicts bounding box + class + score), coupled with a feature pyramid network (FPN) based on the ResNet50 backbone.
   
 - Sliced inference, i.e. detecting objects on the smaller slices of the original image and then merging them together with greedy non-maximal merging (NMM) algorithm.
+  
+- A simple crossplatform GUI tool to vizualize and modify annotatations in COCO format.
   
   <img align="center" src="/demo/scheme.png" width=700px>
 
