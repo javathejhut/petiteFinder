@@ -10,8 +10,12 @@ An automated tool to compute Petite colony frequencies in baker's yeast
 
 ## Motivation
 
-Here goes the motivation for the tool.
-Details: 
+Mitochondrial respiration is central to cellular and organismal health in eukaryotes. In baker’s yeast, however, respiration is dispensable under fermentation conditions. 
+Because yeast are tolerant of this mitochondrial dysfunction, yeast are widely used by biologists as a model organism to ask a variety of questions concerning the integrity of mitochondrial respiration. 
+Furthermore, baker’s yeast display an easily identifiable Petite colony phenotype (smaller and more translucent than wild-type colonies) that is indicative of cells incapable of respiration.
+
+Here we introduce petiteFinder, an automated computer vision tool to detect and compute Petite colony frequencies in scanned images of petri dishes. 
+It addresses issues in scalability and reproducibility of the Petite colony assay which currently relies on laborious manual colony counting methods.
 
 ## Demo
 
