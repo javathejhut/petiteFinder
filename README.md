@@ -1,9 +1,9 @@
 <div align="center">
 
-# PetiteFinder
+# petiteFinder
 
 <h4>
-An automated tool to compute Petite colony frequencies in baker's yeast
+An automated computer vision tool to compute Petite colony frequencies in baker's yeast
 </h4>
 
 </div>
@@ -39,7 +39,7 @@ It addresses issues in scalability and reproducibility of the Petite colony assa
 
 ## Installation
 
-The colony detection module of PetiteFinder was build on an open-source image detection toolbox [MMDetection](https://github.com/open-mmlab/mmdetection) and 
+The colony detection module of petiteFinder was build on an open-source image detection toolbox [MMDetection](https://github.com/open-mmlab/mmdetection) and 
 a CV library for large scale object detection via slicing called [SAHI](https://github.com/obss/sahi). The GUI module was designed with the [tkinter](https://docs.python.org/3/library/tkinter.html) python library.
 
 - Clone the repo:
@@ -171,7 +171,7 @@ If you use this software in your research, please cite it as:
 ```
 @software{petiteFinder,
   author       = {Nunn, Christopher J. and Klyshko, Eugene},
-  title        = {{PetiteFinder: An automated tool to compute Petite colony frequencies in baker's yeast}},
+  title        = {{petiteFinder: An automated computer vision tool to compute Petite colony frequencies in baker's yeast}},
   url          = {https://github.com/javathejhut/petiteFinder}
 }
 ```
