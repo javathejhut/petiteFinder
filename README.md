@@ -36,12 +36,12 @@ It addresses issues in scalability and reproducibility of the Petite colony assa
 </details>
 
 ## Performance
-
+| mAP(0.5:0.95): 0.64 | mAP@0.5: 0.96 | mAP@0.75: 0.6 |
+| ---- | ---- | ----- |
 | Category | Precision | Recall |
 | ------ | ------ | ----- | 
 | Grande | 0.96 | 0.99 |
 | Petite | 0.96 | 0.99 |
-|---- | ------ | ----- |
 
 
 ## Installation
