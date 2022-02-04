@@ -38,7 +38,7 @@ It addresses issues in scalability and reproducibility of the Petite colony assa
 ## Performance
 
 | Category | Precision | Recall |
---
+| ------ | ------ | ----- | 
 | Grande | 0.96 | 0.99 |
 | Petite | 0.96 | 0.99 |
 |---- | ------ | ----- |
