@@ -2,9 +2,8 @@
 
 # petiteFinder
 
-<h4>
-An automated computer vision tool to compute Petite colony frequencies in baker's yeast
-</h4>
+
+*** An automated computer vision tool to compute Petite colony frequencies in baker's yeast ***
 
 </div>
 
