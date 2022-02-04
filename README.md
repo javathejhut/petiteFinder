@@ -4,8 +4,9 @@
 
 ### An automated computer vision tool to compute Petite colony frequencies in baker's yeast
 
-<hr>
 </div>
+
+<hr>
 
 ## Motivation
 
@@ -36,8 +37,13 @@ It addresses issues in scalability and reproducibility of the Petite colony assa
 </details>
 
 ## Performance
+
+Ground truth annotations of 1327 colonies were compared to predicted annotations from petiteFinder across 17 images in the test set. The top row includes mean average precision computations (mAP) across IOU thresholds from 0.5 to 0.95 in 0.05 increments, at 0.5 IOU, and 0.75 IOU. Below this, precision TP/(TP + FP) and recall TP/(TP+FN) have been computed for each colony class.
+
 | mAP(0.5:0.95): 0.64 | mAP@0.5: 0.96 | mAP@0.75: 0.6 |
 | ---- | ---- | ----- |
+
+
 | Category | Precision | Recall |
 | ------ | ------ | ----- | 
 | Grande | 0.96 | 0.99 |
