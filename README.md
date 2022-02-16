@@ -38,7 +38,7 @@ It addresses issues in scalability and reproducibility of the Petite colony assa
 
 ## Performance
 
-Ground truth annotations of 1327 colonies were compared to predicted annotations from petiteFinder across 17 images in the test set. The top row includes mean average precision computations (mAP) across IOU thresholds from 0.5 to 0.95 in 0.05 increments, at 0.5 IOU, and 0.75 IOU. Below this, precision TP/(TP + FP) and recall TP/(TP+FN) have been computed for each colony class.
+Ground truth annotations of 1327 colonies were compared to predicted annotations from petiteFinder across 17 images in the test set. The top row includes mean average precision computations (mAP) across IOU thresholds from 0.5 to 0.95 in 0.05 increments, at 0.5 IOU, and 0.75 IOU. Below this, precision TP/(TP + FP) and recall TP/(TP+FN) at IOU of 0.5 have been computed for each colony class.
 
 | mAP(0.5:0.95): 0.64 | mAP@0.5: 0.96 | mAP@0.75: 0.6 |
 | ---- | ---- | ----- |
