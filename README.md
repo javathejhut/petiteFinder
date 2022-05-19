@@ -3,10 +3,10 @@
 # petiteFinder
 
 ### An automated computer vision tool to compute Petite colony frequencies in baker's yeast
-
 </div>
 
 <hr>
+
 
 ## Motivation
 
@@ -16,6 +16,8 @@ Fortunately, baker’s yeast also display a visually identifiable Petite colony 
 
 Here we introduce petiteFinder, an automated computer vision tool to detect and compute Petite colony frequencies in scanned images of petri dishes. 
 It addresses issues in scalability and reproducibility of the Petite colony assay which currently relies on laborious manual colony counting methods.
+
+Preprint: https://doi.org/10.1101/2022.05.12.491699
 
 ## Demo
 
