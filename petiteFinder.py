@@ -40,6 +40,9 @@ def get_parsers():
                                                                                        "frequency_only",
                                                                                        "json_only",
                                                                                        "visualize_only"])
+    predict_parser.add_argument("-gs", "--grande_size", dest="grande_size", metavar="Grande diameter (pixels)",
+                                help="Enter the typical (average) diameter of a Grande colony in pixels.",
+                                type=int, required=False, default=None)
 
     predict_parser.add_argument("-n", "--name", dest="name", metavar="prefix",
                                 help="Prefix of json annotation/csv frequency file.",
@@ -76,6 +79,27 @@ def compute_optimal_slices(target_img_width, target_img_height):
     trained_img_fraction = TRAINED_SLICE_WIDTH * TRAINED_SLICE_HEIGHT / (TRAINED_IMAGE_HEIGHT * TRAINED_IMAGE_WIDTH)
 
     slice_height = int(math.sqrt(target_img_area * trained_img_fraction))
+    # slice_height = int((56.0*0.9)/50.0)*512
+    slice_width = slice_height
+
+    return slice_width, slice_height
+
+
+def compute_prescribed_slices(grande_size):
+    """
+       compute SAHI slice height/width that maintains Grande colony to slice ratio
+       in training data. Useful when colonies are drastically smaller/larger than even augmented
+       training data.
+       Args:
+           grande_size: int
+                Diameter in pixels of a typical Grande colony
+
+       Returns:
+           slice_height, slice_width: (int, int)
+               slice height, slice width
+    """
+
+    slice_height = int(grande_size/TRAINED_GRANDE_SIZE)*TRAINED_SLICE_HEIGHT
     slice_width = slice_height
 
     return slice_width, slice_height
@@ -110,7 +134,7 @@ def list_image_files(directory):
     return filepath_list
 
 
-def perform_inference_coco(target, model_device):
+def perform_inference_coco(target, model_device, grande_size):
     """
        load model with SAHI wrapper and return coco json for image(s)
        Args:
@@ -118,6 +142,8 @@ def perform_inference_coco(target, model_device):
                "~/plate_images/"
            model_device: str
                "cuda" or "cpu"
+           grande_size: int
+                Diameter in pixels of a typical Grande colony
 
        Returns:
            coco_dict: list
@@ -151,7 +177,10 @@ def perform_inference_coco(target, model_device):
         # store image information
         im = Image.open(img)
         width, height = im.size
-        slice_height, slice_width = compute_optimal_slices(width, height)
+        if grande_size:
+            slice_height, slice_width = compute_prescribed_slices(grande_size)
+        else:
+            slice_height, slice_width = compute_optimal_slices(width, height)
         coco_dict["images"].append({"file_name": img, "height": height, "width": width, "id": img_id})
 
         pred_result = get_sliced_prediction(image=img, detection_model=detection_model, slice_height=slice_height,
@@ -324,7 +353,7 @@ if __name__ == "__main__":
             os.mkdir(args.output_path)
 
         if args.predict == "complete":
-            coco_prediction_dict = perform_inference_coco(args.input_path, args.device)
+            coco_prediction_dict = perform_inference_coco(args.input_path, args.device, args.grande_size)
             save_coco_json(destination=args.output_path, prefix=args.name,
                            annotations=coco_prediction_dict["annotations"],
                            images=coco_prediction_dict["images"])
@@ -332,15 +361,15 @@ if __name__ == "__main__":
             save_freq_csv(coco_dict=coco_prediction_dict, destination=args.output_path, prefix=args.name)
 
         elif args.predict == "json_only":
-            coco_prediction_dict = perform_inference_coco(args.input_path, args.device)
+            coco_prediction_dict = perform_inference_coco(args.input_path, args.device, args.grande_size)
             save_coco_json(destination=args.output_path, prefix=args.name,
                            annotations=coco_prediction_dict["annotations"],
                            images=coco_prediction_dict["images"])
 
         elif args.predict == "frequency_only":
-            coco_prediction_dict = perform_inference_coco(args.input_path, args.device)
+            coco_prediction_dict = perform_inference_coco(args.input_path, args.device, args.grande_size)
             save_freq_csv(coco_dict=coco_prediction_dict, destination=args.output_path, prefix=args.name)
 
         elif args.predict == "visualize_only":
-            coco_prediction_dict = perform_inference_coco(args.input_path, args.device)
+            coco_prediction_dict = perform_inference_coco(args.input_path, args.device, args.grande_size)
             save_annotated_images(coco_dict=coco_prediction_dict, destination=args.output_path, prefix=args.name)
