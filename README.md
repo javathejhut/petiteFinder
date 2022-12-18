@@ -146,7 +146,7 @@ To run the colony detection model on a folder with images use the `predict` comm
 - Provide an output directory with a `-o` flag. This is the directory where all results are saved (annotations, petite colonies frequency CSV, annotated images).
 - Specify a compute device with a `-d` flag. Choices are `cpu` and `gpu`.
 - Specify to what level of details you want the results with a `-p` flag. Choices are `complete`, `frequency_only`, `json_only`, `visualize_only`. 
-- Optionally specify a Grande colony size (diameter in pixels) through the '-gs' flag. Use only if there is significant Petite bias observed in your dataset.
+- Optionally specify a Grande colony size (diameter in pixels) through the `-gs` flag. Use only if there is significant Petite bias observed in your dataset.
 - For more details, access help by running `python petiteFinder.py predict -h`.
 
 Example:
