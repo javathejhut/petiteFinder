@@ -1,3 +1,7 @@
+import warnings
+# Suppress the MMCV 2.0.0 deprecation warning
+warnings.filterwarnings("ignore")
+
 from sahi.predict import get_sliced_prediction
 from sahi.utils.file import import_class
 import os
