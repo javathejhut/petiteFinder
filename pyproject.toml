@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "petitefinder"
+version = "0.1.0"
+description = "An automated computer vision tool to compute Petite colony frequencies in baker's yeast"
+authors = ["Chris Nunn", "Eugene Klyshko"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.7,<3.11"
+sahi = "0.8.19"
+torch = {version = "1.11.0+cu113", source = "pytorch"}
+torchvision = {version = "0.12.0+cu113", source = "pytorch"}
+numpy = "<2.0.0"
+pandas = "*"
+scipy = "*"
+scikit-learn = "*"
+scikit-image = "*"
+matplotlib = "*"
+seaborn = "*"
+pycocotools = "*"
+mean-average-precision = "*"
+labelme2coco = "*"
+addict = "*"
+fire = "*"
+setuptools = "<70.0.0"
+pillow = "<10.0.0"
+
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu113"
+priority = "explicit"

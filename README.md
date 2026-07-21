@@ -54,89 +54,52 @@ Ground truth annotations of 1327 colonies were compared to predicted annotations
 
 ## Installation
 
-The colony detection module of petiteFinder was build on an open-source image detection toolbox [MMDetection](https://github.com/open-mmlab/mmdetection) and 
-a CV library for large scale object detection via slicing called [SAHI](https://github.com/obss/sahi). The GUI module was designed with the [tkinter](https://docs.python.org/3/library/tkinter.html) python library.
+The colony detection module of petiteFinder relies on the [MMDetection](https://github.com/open-mmlab/mmdetection) toolbox and [SAHI](https://github.com/obss/sahi). We use [Poetry](https://python-poetry.org/) for dependency management and a `Makefile` to streamline the setup, ensuring strict compatibility with the required baseline versions of PyTorch and OpenMMLab.
 
-- Clone the repo:
-```console
-git-lfs clone https://github.com/javathejhut/petiteFinder
-cd petiteFinder
-```
+### Prerequisites
 
-<details closed>
-<summary>
-<big><b>Details for systems with CUDA devices:</b></big>
-</summary>
+* **Python:** 3.7 – 3.10
+* **make:** Required to execute the installation scripts.
+* **tkinter:** Required for the GUI visualization tool.
+* **Git LFS:** Required to download the trained model weights.
 
+### Setup
 
-- Create and activate a new `conda` environment:
-```console
-conda create --name petiteEnv python=3.7
-conda activate petiteEnv
-```
+1. **Install OS-level dependencies (`make` and `tkinter`):**
+   Unlike Windows and macOS, many Linux distributions strip `tkinter` and `make` out of the default installation. Install them via your package manager:
+   ```bash
+   # On Ubuntu/Debian:
+   sudo apt-get update
+   sudo apt-get install make python3-tk
+   ```
+   *(For macOS, `make` is included with Xcode Command Line Tools, and `tkinter` can be installed via `brew install python-tk`)*
 
-- Install `SAHI` using pip:
-```console
-pip install sahi==0.8.19
-```
+2. **Install Poetry:**
+   If you don't already have Poetry installed, install it via the official script:
+   ```bash
+   curl -sSL https://install.python-poetry.org | python3 -
+   ```
+   *Note:* Ensure Poetry's bin directory is in your system's `PATH`. If the installer warns you about this, add it to your shell configuration (e.g., `echo 'export PATH="/home/$USER/.local/bin:$PATH"' >> ~/.bashrc` and run `source ~/.bashrc`).
 
-- Install pytorch, torchvision and CUDA Toolkit (recommended versions):
-```console
-conda install pytorch=1.10.0 torchvision=0.11.1 cudatoolkit=11.3 -c pytorch
-```
+3. **Clone the repository:**
+   Standard `git clone` automatically handles Large File Storage (LFS) as long as Git LFS is installed on your system:
+   ```bash
+   git clone https://github.com/javathejhut/petiteFinder
+   cd petiteFinder
+   ```
 
-- It is recommended to install `MMDetection` using [MIM](https://github.com/open-mmlab/mim), which automatically handles the dependencies of `OpenMMLab` projects, including `mmcv` and other python packages:
+4. **Install dependencies:**
+   Our `Makefile` automatically initializes the Poetry environment and securely fetches the correct pre-compiled C-extensions for the computer vision stack.
 
-```console
-pip install openmim
-mim install mmdet
-```
+   For systems with a CUDA-compatible GPU (CUDA 11.3):
+   ```bash
+   make install
+   ```
 
-- Install `tkiner` for GUI interface (in case it is not installed on your system):
-
-```console
-conda install -c anaconda tk
-```
-</details>
-
-
-<details closed>
-<summary>
-<big><b>Details for systems with CPU only:</b></big>
-</summary>
-
-- Create and activate a new `conda` environment:
-
-```console
-conda create --name petiteEnv python=3.7
-conda activate petiteEnv
-```
-
-- Install `SAHI` using pip:
-```console
-pip install sahi==0.8.19
-```
-
-- Install CPU version of `pytorch`, `torchvision` and `cpuonly` (recommended versions):
-
-```console
-conda install pytorch cpuonly torchvision -c pytorch
-```
-
-- It is recommended to install `MMDetection` using [MIM](https://github.com/open-mmlab/mim), which automatically handles the dependencies of `OpenMMLab` projects, including `mmcv` and other python packages:
-
-```console
-pip install openmim
-mim install mmdet
-```
-
-- Install `tkinter` for GUI interface (in case it's not installed on your system):
-
-```console
-conda install -c anaconda tk
-```
-
-</details>
+   For systems with CPU only:
+   ```bash
+   make install-cpu
+   ```
 
 
 ## 1. Standard Command Line Usage
@@ -151,7 +114,7 @@ To run the colony detection model on a folder with images use the `predict` comm
 
 Example:
 ```
-python petiteFinder.py predict -d cuda -i ./demo/input_images/ -o ./demo/output/ -p complete 
+poetry run python petiteFinder.py predict -d cuda -i ./demo/input_images/ -o ./demo/output/ -p complete 
 ```
 
 ## 2. Interactive Visualization & Inspection
@@ -163,7 +126,7 @@ To visualize the resulting annotations and interactively modify them use the `am
 
 Example:
 ```
-python petiteFinder.py amend -i ./demo/output/pF_predicted.json
+poetry run python petiteFinder.py amend -i ./demo/output/pF_predicted.json
 ```
 This will open a tkinter window:
 
